@@ -17,7 +17,7 @@ internal class QueenOfSauceTodoItem(string recipeName, bool isChecked = false)
         return I18n.Items_QueenOfSauce_Text(this.RecipeName);
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (IsChecked)
         {

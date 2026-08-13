@@ -10,7 +10,8 @@ namespace AutomaticTodoList.Components.UI;
 /// <remarks>Initializes a new instance of the <see cref="AutomaticTodoListPanel"/> class.</remarks>
 internal class AutomaticTodoListPanel(
     Func<int> visibleItemCount,
-    Func<ICollection<ITodoItem>> getItems
+    Func<ICollection<ITodoItem>> getItems,
+    Func<float> getOpacity
 )
 {
     private readonly string TitleText = I18n.Panel_Title();
@@ -20,6 +21,8 @@ internal class AutomaticTodoListPanel(
     private const int LineSpacing = 2;
 
     private static readonly SpriteFont Font = Game1.smallFont;
+
+
 
     public void Draw(SpriteBatch b, Vector2 position)
     {
@@ -44,7 +47,7 @@ internal class AutomaticTodoListPanel(
             renderedItems.Count + // the todo items
             (showOverflowIndicator ? 1 : 0); // the optional overflow indicator
 
-        // draw the surrounding box
+        // draw the surrounding box (with configured opacity)
         DrawTextureBox(b, position, maxTextWidth, numRows, out Vector2 titlePosition);
 
         // draw the title text and dividing line
@@ -75,6 +78,10 @@ internal class AutomaticTodoListPanel(
         // add the border dimensions
         Vector2 dimensions = contentDimensions + new Vector2(GutterLength * 2, GutterLength * 2);
 
+        // compute the background color, applying opacity from config
+        float opacity = MathHelper.Clamp(getOpacity(), 0f, 1f);
+        Color backgroundColor = Color.White * opacity;
+
         // draw the texture box
         IClickableMenu.drawTextureBox(
             b,
@@ -84,9 +91,8 @@ internal class AutomaticTodoListPanel(
             (int)position.Y,
             (int)dimensions.X,
             (int)dimensions.Y,
-            Color.White
+            backgroundColor
         );
-
         nextContentPosition = new Vector2(position.X + GutterLength, position.Y + GutterLength);
     }
     private void DrawTitleTextAndDividingLine(SpriteBatch b, Vector2 position, int totalWidth, out Vector2 nextContentPosition)

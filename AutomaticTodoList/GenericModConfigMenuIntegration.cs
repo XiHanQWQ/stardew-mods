@@ -1,4 +1,5 @@
 using AutomaticTodoList.Integrations;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 
 namespace AutomaticTodoList;
@@ -78,6 +79,17 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             min: 0
         );
 
+        // opacity control (percentage)
+        configMenu.AddNumberOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_PanelOpacity_Name,
+            tooltip: I18n.Config_General_PanelOpacity_Description,
+            getValue: () => (int)(this.Config.PanelOpacity * 100),
+            setValue: value => this.Config.PanelOpacity = MathHelper.Clamp(value / 100f, 0f, 1f),
+            min: 0,
+            max: 100
+        );
+
 
         // engines
         configMenu.AddSectionTitle(
@@ -111,6 +123,14 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             tooltip: I18n.Config_Checks_WaterableCrops_Toggle_Description,
             getValue: () => this.Config.CheckWaterableCrops,
             setValue: value => this.Config.CheckWaterableCrops = value
+        );
+
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_Checks_UnpettedAnimals_Toggle_Name,
+            tooltip: I18n.Config_Checks_UnpettedAnimals_Toggle_Description,
+            getValue: () => this.Config.CheckUnpettedAnimals,
+            setValue: value => this.Config.CheckUnpettedAnimals = value
         );
         configMenu.AddBoolOption(
             mod: this.Manifest,
@@ -190,11 +210,13 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         this.Config.ToggleTodoListKeybind = defaults.ToggleTodoListKeybind;
         this.Config.VisibleItemCount = defaults.VisibleItemCount;
         this.Config.PanelPosition = defaults.PanelPosition;
+        this.Config.PanelOpacity = defaults.PanelOpacity;
 
         this.Config.CheckBirthdays = defaults.CheckBirthdays;
         this.Config.CheckFestivals = defaults.CheckFestivals;
         this.Config.CheckHarvestableCrops = defaults.CheckHarvestableCrops;
         this.Config.CheckWaterableCrops = defaults.CheckWaterableCrops;
+        this.Config.CheckUnpettedAnimals = defaults.CheckUnpettedAnimals;
         this.Config.CheckReadyMachines = defaults.CheckReadyMachines;
         this.Config.CheckToolPickup = defaults.CheckToolPickup;
         this.Config.CheckDailyQuestBulletinBoard = defaults.CheckDailyQuestBulletinBoard;

@@ -39,7 +39,7 @@ internal class ReadyMachinesTodoItem(GameLocation location, bool isChecked = fal
         }
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (!IsChecked)
         {

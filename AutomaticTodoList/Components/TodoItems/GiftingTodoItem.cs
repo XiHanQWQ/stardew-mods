@@ -27,7 +27,7 @@ internal class GiftingTodoItem(NPC npc, Friendship npcFriendship, WeeklyGiftOrdi
         };
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (IsChecked)
         {

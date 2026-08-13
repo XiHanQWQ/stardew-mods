@@ -20,7 +20,7 @@ internal class PassiveFestivalTodoItem(string id, PassiveFestivalData data, bool
         return PassiveFestival.GetI18nDisplayName();
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (IsChecked)
         {

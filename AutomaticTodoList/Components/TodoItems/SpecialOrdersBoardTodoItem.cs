@@ -24,7 +24,7 @@ internal class SpecialOrdersBoardTodoItem(SpecialOrderType specialOrderType, boo
         };
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (!IsChecked)
         {

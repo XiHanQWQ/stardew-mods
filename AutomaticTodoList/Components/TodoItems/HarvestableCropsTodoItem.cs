@@ -22,7 +22,7 @@ internal class HarvestableCropsTodoItem(GameLocation location, bool isChecked = 
         );
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (!IsChecked)
         {

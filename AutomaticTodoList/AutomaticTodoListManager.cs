@@ -34,7 +34,8 @@ internal sealed class AutomaticTodoListManager
     {
         this.automaticTodoListPanel = new(
             () => this.Config.VisibleItemCount,
-            this.GatherItems
+            this.GatherItems,
+            () => this.Config.PanelOpacity
         );
     }
 
@@ -148,6 +149,8 @@ internal sealed class AutomaticTodoListManager
         this.engines.Add(new HarvestableCropsEngine(Log, () => this.Config.CheckHarvestableCrops));
         this.engines.Add(new PassiveFestivalEngine(Log, () => this.Config.CheckFestivals));
         this.engines.Add(new QueenOfSauceEngine(Log, () => this.Config.CheckQueenOfSauce));
+        this.engines.Add(new AnimalsEngine(Log, () => this.Config.CheckUnpettedAnimals));
+        this.engines.Add(new PetEngine(Log, () => this.Config.CheckUnpettedAnimals));
         this.engines.Add(new ReadyMachinesEngine(Log, () => this.Config.CheckReadyMachines));
         this.engines.Add(new SpecialOrdersBoardEngine(Log, () => this.Config.CheckSpecialOrdersBoard));
         this.engines.Add(new TestEngine(Log, () => false));

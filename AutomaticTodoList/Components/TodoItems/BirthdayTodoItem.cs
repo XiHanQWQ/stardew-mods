@@ -17,7 +17,7 @@ internal class BirthdayTodoItem(NPC npc, bool isChecked = false)
         return I18n.Items_Birthday_Text(this.NPC.getName());
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (IsChecked)
         {

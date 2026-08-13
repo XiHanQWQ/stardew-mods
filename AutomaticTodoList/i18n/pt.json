@@ -10,6 +10,9 @@
     "config.general.panel-position-y.name": "Posição Y (vertical) do Painel",
     "config.general.panel-position-y.description": "A posição Y (vertical) do painel da Lista de Tarefas Automáticas",
 
+    "config.general.panel-opacity.name": "Opacidade do painel (%)",
+    "config.general.panel-opacity.description": "Quão opaco o fundo do painel deve ser, de 0 (transparente) a 100 (totalmente opaco).",
+
     // checks configuration section
     "config.checks.title": "Checagens",
     "config.checks.birthdays.toggle.name": "Checar por Aniversários",
@@ -20,6 +23,8 @@
     "config.checks.harvestable-crops.toggle.description": "Se deve ou não adicionar tarefas para colher plantações em várias localizações",
     "config.checks.waterable-crops.toggle.name": "Checar por plantações não regadas",
     "config.checks.waterable-crops.toggle.description": "Se deve ou não adicionar tarefas para regar plantações em várias localizações",
+    "config.checks.unpetted-animals.toggle.name": "Checar por animais não acariciados",
+    "config.checks.unpetted-animals.toggle.description": "Se deve ou não adicionar tarefas para animais de estimação que não foram acariciados hoje",
     "config.checks.ready-machines.toggle.name": "Checar por Máquinas Prontas",
     "config.checks.ready-machines.toggle.description": "Se deve ou não adicionar tarefas para esvaziar máquinas prontas em várias localizações",
     "config.checks.tool-pickup.toggle.name": "Checar por Ferramentas prontas",
@@ -57,5 +62,7 @@
     "items.special-orders-board.qi.text": "Verificar o quadro de pedidos especiais na Sala das Nozes do Sr. Qi",
     "items.tool-pickup.text": "Pegar {{tool}} com Clint",
     "items.traveling-merchant.text": "Visitar o carrinho de Viagem",
-    "items.waterable-crops.text": "Regar plantações ({{location}}) ({{remaining}} restantes)"
+    "items.waterable-crops.text": "Regar plantações ({{location}}) ({{remaining}} restantes)",
+    "items.animals.single.text": "Acariciar {{animal}}",
+    "items.animals.byType.text": "Acariciar animais ({{type}}) ({{remaining}} restantes)"
 }

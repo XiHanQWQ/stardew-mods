@@ -27,7 +27,7 @@ internal class ActiveFestivalTodoItem(string festivalKey, string displayName, bo
         };
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (IsChecked)
         {

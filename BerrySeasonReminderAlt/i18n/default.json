@@ -1,0 +1,6 @@
+{
+    "blackberry.season": "Blackberry Season",
+    "salmonberry.season": "Salmonberry Season",
+    "config.require-bears-knowledge.name": "Require Bear's Knowledge",
+    "config.require-bears-knowledge.tooltip": "Only show berry seasons after earning Bear's Knowledge."
+}

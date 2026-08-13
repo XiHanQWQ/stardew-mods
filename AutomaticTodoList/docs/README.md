@@ -27,8 +27,9 @@ Here is a list of currently supported to-do items:
 - Traveling Merchant's cart
 - Gifting specified villagers
 - Watching Queen of Sauce
+- Pets that haven’t been petted yet (including your cat/dog)
 
-Each task type can be toggled off or on individually in the settings. All settings are fully compatible with Generic Mod Config Menu
+Each task type can be toggled off or on individually in the settings. You can also move the panel around, limit how many items remain visible, and configure its background opacity. All settings are fully compatible with Generic Mod Config Menu
 
 ## Compatibility
 

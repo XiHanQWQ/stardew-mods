@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <LangVersion>12.0</LangVersion>
     <ModZipPath>./_releases</ModZipPath>
+    <AssemblyName>AutomaticTodoListAlt</AssemblyName>
+    <ModFolderName>AutomaticTodoListAlt</ModFolderName>
   </PropertyGroup>
 
   <ItemGroup>

@@ -25,6 +25,12 @@ internal abstract class BaseEngine<T>(
 
     public virtual void OnDayStarted(DayStartedEventArgs e)
     {
+        if (!this.IsEnabled())
+        {
+            items.Clear();
+            return;
+        }
+
         CheckActions(Frequency.OnceADay);
 
         foreach (T item in items)
@@ -35,6 +41,11 @@ internal abstract class BaseEngine<T>(
 
     public virtual void OnTimeChanged(TimeChangedEventArgs e)
     {
+        if (!this.IsEnabled())
+        {
+            return;
+        }
+
         CheckActions(Frequency.EveryTimeChange);
 
         foreach (T item in items)
@@ -45,6 +56,12 @@ internal abstract class BaseEngine<T>(
 
     public virtual void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
+        if (!this.IsEnabled())
+        {
+            items.Clear();
+            return;
+        }
+
         CheckActions(Frequency.EverySecond);
 
         foreach (T item in items)
@@ -55,6 +72,11 @@ internal abstract class BaseEngine<T>(
 
     public virtual void OnUpdateTicked(UpdateTickedEventArgs e)
     {
+        if (!this.IsEnabled())
+        {
+            return;
+        }
+
         CheckActions(Frequency.EveryTick);
 
         foreach (T item in items)
@@ -65,6 +87,11 @@ internal abstract class BaseEngine<T>(
 
     public virtual void OnMenuChanged(MenuChangedEventArgs e)
     {
+        if (!this.IsEnabled())
+        {
+            return;
+        }
+
         foreach (T item in items)
         {
             item.OnMenuChanged(e);

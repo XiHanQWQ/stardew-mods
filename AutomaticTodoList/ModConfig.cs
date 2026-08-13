@@ -30,6 +30,9 @@ public sealed class ModConfig
 
     public bool CheckWaterableCrops { get; set; } = true;
 
+    // pets that still need to be petted
+    public bool CheckUnpettedAnimals { get; set; } = true;
+
     public bool CheckReadyMachines { get; set; } = true;
 
     public bool CheckToolPickup { get; set; } = true;
@@ -45,4 +48,7 @@ public sealed class ModConfig
     public bool CheckGiftingNPCs { get; set; } = false;
 
     public string GiftingNPCsString { get; set; } = "";
+
+    /// <summary>The opacity of the panel background, 0&nbsp;=&nbsp;fully transparent, 1&nbsp;=&nbsp;fully opaque.</summary>
+    public float PanelOpacity { get; set; } = 1f;
 }

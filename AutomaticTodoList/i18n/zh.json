@@ -3,23 +3,30 @@
     "config.general.title": "常规",
     "config.general.toggle-keybind.name": "切换自动待办事项列表",
     "config.general.toggle-keybind.description": "用于切换自动待办事项列表面板的快捷键。",
-    "config.general.visible-items-count.name": "可见项目数",
-    "config.general.visible-items-count.description": "自动待办事项列表面板中一次显示的项目数。如果待办事项项目超过此数量，面板将显示一个溢出指示器",
+    "config.general.visible-item-count.name": "可见项目数",
+    "config.general.visible-item-count.description": "自动待办事项列表面板中一次显示的项目数。如果待办事项项目超过此数量，面板将显示一个溢出指示器",
+    "config.general.check-interval-seconds.name": "检查间隔（秒）",
+    "config.general.check-interval-seconds.description": "后台检查的执行间隔，单位为秒。数值越大性能开销越低，但列表更新会变慢。",    
     "config.general.panel-position-x.name": "面板位置 X",
     "config.general.panel-position-x.description": "自动待办事项列表面板的 X 坐标位置",
     "config.general.panel-position-y.name": "面板位置 Y",
     "config.general.panel-position-y.description": "自动待办事项列表面板的 Y 坐标位置",
 
+    "config.general.panel-opacity.name": "面板不透明度 (%)",
+    "config.general.panel-opacity.description": "面板背景的不透明度，从 0（透明）到 100（完全不透明）。",
+
     // checks configuration section
     "config.checks.title": "检查",
     "config.checks.birthdays.toggle.name": "检查生日",
     "config.checks.birthdays.toggle.description": "是否为 村民生日时赠送礼物 添加待办事项",
-    "config.checks.festivals.toggle.name": "Check Festivals", // TODO
-    "config.checks.festivals.toggle.description": "Whether or not to add to-do items for attending festivals", // TODO
+    "config.checks.festivals.toggle.name": "检查节日",
+    "config.checks.festivals.toggle.description": "是否为 参加节日活动 添加待办事项",
     "config.checks.harvestable-crops.toggle.name": "检查可收获的作物",
     "config.checks.harvestable-crops.toggle.description": "是否为 在不同地点收获作物 添加待办事项事项",
     "config.checks.waterable-crops.toggle.name": "检查可浇水的作物",
     "config.checks.waterable-crops.toggle.description": "是否为 在不同地点给作物浇水 添加待办事项事项",
+    "config.checks.unpetted-animals.toggle.name": "检查未被爱抚的宠物",
+    "config.checks.unpetted-animals.toggle.description": "是否为今天还未被爱抚的宠物添加待办事项",
     "config.checks.ready-machines.toggle.name": "检查完工的机器",
     "config.checks.ready-machines.toggle.description": "是否为 在不同地点采收完工机器 添加待办事项事项",
     "config.checks.tool-pickup.toggle.name": "检查工具领取",
@@ -42,20 +49,22 @@
     "panel.overflow-indicator": "... (还有{{count}}项未显示)",
 
     // text of the actual line items on the in-game list
-    "items.active-festival.text-without-article": "Attend {{festival}}", // TODO
-    "items.active-festival.text-with-article": "Attend the {{festival}}", // TODO
+    "items.active-festival.text-without-article": "参加 {{festival}}",
+    "items.active-festival.text-with-article": "参加 {{festival}}",
     "items.birthday.text": "给 {{npc}} 送生日礼物",
     "items.bulletin-board.text": "查看每日任务公告板",
     "items.gifting.first-gift.text": "给{{npc}}送礼（本周第一次）",
     "items.gifting.second-gift.text": "给{{npc}}送礼（本周第二次）",
     "items.harvestable-crops.text": "收获作物（{{location}}），还剩 {{remaining}} 个",
-    "items.passive-festival.text-without-article": "Attend {{festival}} (day {{day}})", // TODO
-    "items.passive-festival.text-with-article": "Attend the {{festival}} (day {{day}})", // TODO
+    "items.passive-festival.text-without-article": "参加 {{festival}} ({{day}} 天)",
+    "items.passive-festival.text-with-article": "参加 {{festival}} ({{day}} 天)",
     "items.queen-of-sauce.text": "观看酱料女王： ({{recipeName}})",
     "items.ready-machines.text": "采收完工的机器（{{location}}），还剩 {{remaining}} 个",
     "items.special-orders-board.standard.text": "查看城镇中的特别订单看板",
     "items.special-orders-board.qi.text": "查看齐先生的核桃房中的特别订单看板",
     "items.tool-pickup.text": "从克林特处领取 {{tool}}",
     "items.traveling-merchant.text": "访问旅行商人的货车",
-    "items.waterable-crops.text": "给作物浇水（{{location}}），还剩 {{remaining}} 个"
+    "items.waterable-crops.text": "给作物浇水（{{location}}），还剩 {{remaining}} 个",
+    "items.animals.single.text": "爱抚 {{animal}}",
+    "items.animals.byType.text": "抚摸动物 ({{type}})（剩余 {{remaining}}）"
 }

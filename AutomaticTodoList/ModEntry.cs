@@ -17,10 +17,12 @@ internal sealed class ModEntry : Mod
     /*********
     ** Public methods
     *********/
+    public static IMonitor? SMonitor;
     /// <summary>The mod entry point, called after the mod is first loaded.</summary>
     /// <param name="helper">Provides simplified APIs for writing mods.</param>
     public override void Entry(IModHelper helper)
     {
+        SMonitor = this.Monitor;
         I18n.Init(helper.Translation);
 
         this.Config = Helper.ReadConfig<ModConfig>();
@@ -72,7 +74,7 @@ internal sealed class ModEntry : Mod
         this.AutomaticTodoListManager.OnTimeChanged(e);
     }
 
-    /// <summary>Raised before/after the game state is updated, once per second.</summary>
+    /// <summary>Raised after the game state is updated, once per second.</summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The event arguments.</param>
     private void OnOneSecondUpdateTicked(object? sender, OneSecondUpdateTickedEventArgs e)

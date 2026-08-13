@@ -17,7 +17,7 @@ internal class ToolPickupTodoItem(Tool tool, bool isChecked = false)
         return I18n.Items_ToolPickup_Text(this.ReadyTool.DisplayName);
     }
 
-    public override void OnUpdateTicked(UpdateTickedEventArgs e)
+    public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
         if (!IsChecked)
         {
