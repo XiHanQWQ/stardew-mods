@@ -12,6 +12,16 @@
 
     "config.general.panel-opacity.name": "Opacidade do painel (%)",
     "config.general.panel-opacity.description": "Quão opaco o fundo do painel deve ser, de 0 (transparente) a 100 (totalmente opaco).",
+    "config.general.show-panel-background.name": "Mostrar fundo do painel",
+    "config.general.show-panel-background.description": "Se deve desenhar a caixa de fundo escura atrás da lista. Desative para mostrar apenas o texto.",
+    "config.general.draw-panel-shadow.name": "Sombra do painel",
+    "config.general.draw-panel-shadow.description": "Se deve desenhar uma sombra atrás da caixa de fundo do painel.",
+    "config.general.use-white-text.name": "Texto branco",
+    "config.general.use-white-text.description": "Desenhar o texto da lista em branco, em vez do texto escuro padrão.",
+    "config.general.draw-text-shadow.name": "Sombra do texto",
+    "config.general.draw-text-shadow.description": "Se deve desenhar uma sombra atrás do texto do painel.",
+    "config.general.draw-text-underline.name": "Sublinhado do texto",
+    "config.general.draw-text-underline.description": "Se deve desenhar um sublinhado abaixo de cada item da lista.",
 
     // checks configuration section
     "config.checks.title": "Checagens",

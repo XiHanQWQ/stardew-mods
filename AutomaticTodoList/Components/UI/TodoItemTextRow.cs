@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-internal class TodoItemTextRow(ITodoItem item, Vector2 position)
+internal class TodoItemTextRow(ITodoItem item, Vector2 position, bool useWhiteText = false, bool drawShadow = true, bool drawUnderline = false)
 {
     private static readonly Lazy<Texture2D> lazyPixel = new(() =>
     {
@@ -18,19 +18,23 @@ internal class TodoItemTextRow(ITodoItem item, Vector2 position)
     public void Draw(SpriteBatch b)
     {
         SpriteFont font = Game1.smallFont;
-        Color textColor = item.IsChecked ? Color.DarkSlateGray : Color.Black;
+        Color textColor = useWhiteText ? Color.White : (item.IsChecked ? Color.DarkSlateGray : Color.Black);
         string text = item.Text();
 
-        if (!item.IsChecked)
+        if (drawShadow)
         {
-            // Utility.drawBoldText(b, Text, font, position, textColor);
             Utility.drawTextWithShadow(b, text, font, position, textColor);
         }
         else
         {
-            Utility.drawTextWithShadow(b, text, font, position, textColor);
+            b.DrawString(font, text, position, textColor);
+        }
 
-            Vector2 textSize = font.MeasureString(text);
+        Vector2 textSize = font.MeasureString(text);
+
+        if (item.IsChecked)
+        {
+            // strikethrough for completed items
             b.Draw(
                 Pixel,
                 new Rectangle(
@@ -39,7 +43,21 @@ internal class TodoItemTextRow(ITodoItem item, Vector2 position)
                     (int)textSize.X,
                     1
                 ),
-                Color.Black
+                textColor
+            );
+        }
+        else if (drawUnderline)
+        {
+            // underline for the text-underline style
+            b.Draw(
+                Pixel,
+                new Rectangle(
+                    (int)position.X,
+                    (int)(position.Y + textSize.Y),
+                    (int)textSize.X,
+                    1
+                ),
+                textColor
             );
         }
     }

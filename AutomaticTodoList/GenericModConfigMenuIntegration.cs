@@ -89,6 +89,41 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             min: 0,
             max: 100
         );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_ShowPanelBackground_Name,
+            tooltip: I18n.Config_General_ShowPanelBackground_Description,
+            getValue: () => this.Config.ShowPanelBackground,
+            setValue: value => this.Config.ShowPanelBackground = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_DrawPanelShadow_Name,
+            tooltip: I18n.Config_General_DrawPanelShadow_Description,
+            getValue: () => this.Config.DrawPanelShadow,
+            setValue: value => this.Config.DrawPanelShadow = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_UseWhiteText_Name,
+            tooltip: I18n.Config_General_UseWhiteText_Description,
+            getValue: () => this.Config.UseWhiteText,
+            setValue: value => this.Config.UseWhiteText = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_DrawTextShadow_Name,
+            tooltip: I18n.Config_General_DrawTextShadow_Description,
+            getValue: () => this.Config.DrawTextShadow,
+            setValue: value => this.Config.DrawTextShadow = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_DrawTextUnderline_Name,
+            tooltip: I18n.Config_General_DrawTextUnderline_Description,
+            getValue: () => this.Config.DrawTextUnderline,
+            setValue: value => this.Config.DrawTextUnderline = value
+        );
 
 
         // engines
@@ -211,6 +246,11 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         this.Config.VisibleItemCount = defaults.VisibleItemCount;
         this.Config.PanelPosition = defaults.PanelPosition;
         this.Config.PanelOpacity = defaults.PanelOpacity;
+        this.Config.ShowPanelBackground = defaults.ShowPanelBackground;
+        this.Config.DrawPanelShadow = defaults.DrawPanelShadow;
+        this.Config.UseWhiteText = defaults.UseWhiteText;
+        this.Config.DrawTextShadow = defaults.DrawTextShadow;
+        this.Config.DrawTextUnderline = defaults.DrawTextUnderline;
 
         this.Config.CheckBirthdays = defaults.CheckBirthdays;
         this.Config.CheckFestivals = defaults.CheckFestivals;

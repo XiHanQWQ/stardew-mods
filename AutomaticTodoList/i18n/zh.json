@@ -5,8 +5,6 @@
     "config.general.toggle-keybind.description": "用于切换自动待办事项列表面板的快捷键。",
     "config.general.visible-item-count.name": "可见项目数",
     "config.general.visible-item-count.description": "自动待办事项列表面板中一次显示的项目数。如果待办事项项目超过此数量，面板将显示一个溢出指示器",
-    "config.general.check-interval-seconds.name": "检查间隔（秒）",
-    "config.general.check-interval-seconds.description": "后台检查的执行间隔，单位为秒。数值越大性能开销越低，但列表更新会变慢。",    
     "config.general.panel-position-x.name": "面板位置 X",
     "config.general.panel-position-x.description": "自动待办事项列表面板的 X 坐标位置",
     "config.general.panel-position-y.name": "面板位置 Y",
@@ -14,6 +12,16 @@
 
     "config.general.panel-opacity.name": "面板不透明度 (%)",
     "config.general.panel-opacity.description": "面板背景的不透明度，从 0（透明）到 100（完全不透明）。",
+    "config.general.show-panel-background.name": "显示面板背景",
+    "config.general.show-panel-background.description": "是否在列表后方绘制深色背景框。关闭后仅显示文字。",
+    "config.general.draw-panel-shadow.name": "面板阴影",
+    "config.general.draw-panel-shadow.description": "是否在面板背景框后方绘制阴影。",
+    "config.general.use-white-text.name": "白色文字",
+    "config.general.use-white-text.description": "用白色文字代替默认的深色文字。",
+    "config.general.draw-text-shadow.name": "文字阴影",
+    "config.general.draw-text-shadow.description": "是否在面板文字后方绘制阴影。",
+    "config.general.draw-text-underline.name": "文字下划线",
+    "config.general.draw-text-underline.description": "是否在列表的每个条目下方绘制下划线。",
 
     // checks configuration section
     "config.checks.title": "检查",

@@ -11,7 +11,12 @@ namespace AutomaticTodoList.Components.UI;
 internal class AutomaticTodoListPanel(
     Func<int> visibleItemCount,
     Func<ICollection<ITodoItem>> getItems,
-    Func<float> getOpacity
+    Func<float> getOpacity,
+    Func<bool> getShowBackground,
+    Func<bool> getDrawPanelShadow,
+    Func<bool> getUseWhiteText,
+    Func<bool> getDrawShadow,
+    Func<bool> getDrawUnderline
 )
 {
     private readonly string TitleText = I18n.Panel_Title();
@@ -59,12 +64,19 @@ internal class AutomaticTodoListPanel(
         // draw the overflow indicator
         if (showOverflowIndicator)
         {
-            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - renderedItems.Count);
+            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - renderedItems.Count, getUseWhiteText(), getDrawShadow(), getDrawUnderline());
         }
     }
 
     private void DrawTextureBox(SpriteBatch b, Vector2 position, int maxTextWidth, int numRows, out Vector2 nextContentPosition)
     {
+        // if the background box is disabled, draw only the text without any padding
+        if (!getShowBackground())
+        {
+            nextContentPosition = position;
+            return;
+        }
+
         // assume the size of each text line
         int lineHeight = (int)Font.MeasureString(TitleText).Y;
 
@@ -91,13 +103,14 @@ internal class AutomaticTodoListPanel(
             (int)position.Y,
             (int)dimensions.X,
             (int)dimensions.Y,
-            backgroundColor
+            backgroundColor,
+            drawShadow: getDrawPanelShadow()
         );
         nextContentPosition = new Vector2(position.X + GutterLength, position.Y + GutterLength);
     }
     private void DrawTitleTextAndDividingLine(SpriteBatch b, Vector2 position, int totalWidth, out Vector2 nextContentPosition)
     {
-        CenteredTextRow titleRow = new(TitleText, position, totalWidth);
+        CenteredTextRow titleRow = new(TitleText, position, totalWidth, getUseWhiteText(), getDrawShadow(), getDrawUnderline());
         titleRow.Draw(b);
 
         var dividerPosition = new Vector2(position.X, position.Y + (int)Font.MeasureString(TitleText).Y + LineSpacing);
@@ -106,7 +119,7 @@ internal class AutomaticTodoListPanel(
             (int)dividerPosition.X, (int)dividerPosition.Y,
             (int)dividerPosition.X + totalWidth, (int)dividerPosition.Y,
             b,
-            Game1.textColor,
+            getUseWhiteText() ? Color.White : Game1.textColor,
             thickness: 1
         );
 
@@ -119,7 +132,7 @@ internal class AutomaticTodoListPanel(
 
         foreach (ITodoItem item in items.Take(visibleItemCount()))
         {
-            TodoItemTextRow itemRow = new(item, currentPosition);
+            TodoItemTextRow itemRow = new(item, currentPosition, getUseWhiteText(), getDrawShadow(), getDrawUnderline());
             itemRow.Draw(b);
             currentPosition.Y += (int)Font.MeasureString(item.Text()).Y + LineSpacing;
         }
@@ -127,9 +140,9 @@ internal class AutomaticTodoListPanel(
         nextContentPosition = currentPosition;
     }
 
-    private static void DrawOverflowIndicator(SpriteBatch b, Vector2 position, int numRemaining)
+    private static void DrawOverflowIndicator(SpriteBatch b, Vector2 position, int numRemaining, bool useWhiteText, bool drawShadow, bool drawUnderline)
     {
-        TextRow overflowIndicatorRow = new(I18n.Panel_OverflowIndicator(numRemaining), position);
+        TextRow overflowIndicatorRow = new(I18n.Panel_OverflowIndicator(numRemaining), position, useWhiteText, drawShadow, drawUnderline);
         overflowIndicatorRow.Draw(b);
     }
 }

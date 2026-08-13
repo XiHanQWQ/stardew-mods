@@ -35,7 +35,12 @@ internal sealed class AutomaticTodoListManager
         this.automaticTodoListPanel = new(
             () => this.Config.VisibleItemCount,
             this.GatherItems,
-            () => this.Config.PanelOpacity
+            () => this.Config.PanelOpacity,
+            () => this.Config.ShowPanelBackground,
+            () => this.Config.DrawPanelShadow,
+            () => this.Config.UseWhiteText,
+            () => this.Config.DrawTextShadow,
+            () => this.Config.DrawTextUnderline
         );
     }
 
