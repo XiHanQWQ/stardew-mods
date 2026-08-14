@@ -2,6 +2,7 @@ using AutomaticTodoList.Components.UI;
 using AutomaticTodoList.Engines;
 using AutomaticTodoList.Models;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
 
 namespace AutomaticTodoList;
@@ -70,9 +71,22 @@ internal sealed class AutomaticTodoListManager
 
     internal void OnUpdateTicked(UpdateTickedEventArgs e)
     {
+        if (this.Config.IsPanelVisible && this.automaticTodoListPanel is not null)
+        {
+            this.automaticTodoListPanel.UpdateScrollbarDrag(Mouse.GetState());
+        }
+
         foreach (IEngine engine in this.engines)
         {
             engine.OnUpdateTicked(e);
+        }
+    }
+
+    internal void OnMouseWheelScrolled(MouseWheelScrolledEventArgs e)
+    {
+        if (this.Config.IsPanelVisible && this.automaticTodoListPanel is not null)
+        {
+            this.automaticTodoListPanel.HandleMouseWheel(e.Delta);
         }
     }
 

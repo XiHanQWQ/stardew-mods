@@ -34,6 +34,7 @@ internal sealed class ModEntry : Mod
         helper.Events.GameLoop.OneSecondUpdateTicked += this.OnOneSecondUpdateTicked;
         helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked;
         helper.Events.Input.ButtonsChanged += this.OnButtonsChanged;
+        helper.Events.Input.MouseWheelScrolled += this.OnMouseWheelScrolled;
         helper.Events.Display.RenderedHud += this.OnRenderedHud;
         helper.Events.Display.MenuChanged += this.OnMenuChanged;
     }
@@ -103,6 +104,20 @@ internal sealed class ModEntry : Mod
         }
 
         this.AutomaticTodoListManager.OnButtonsChanged(e);
+    }
+
+    /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The event data.</param>
+    private void OnMouseWheelScrolled(object? sender, MouseWheelScrolledEventArgs e)
+    {
+        // ignore if player hasn't loaded a save yet
+        if (!Context.IsWorldReady)
+        {
+            return;
+        }
+
+        this.AutomaticTodoListManager.OnMouseWheelScrolled(e);
     }
 
     private void OnRenderedHud(object? sender, RenderedHudEventArgs e)
