@@ -38,10 +38,12 @@ internal sealed class AutomaticTodoListManager
             this.GatherItems,
             () => this.Config.PanelOpacity,
             () => this.Config.TextOpacity,
+            () => this.Config.LargeFont,
             () => this.Config.ShowPanelBackground,
             () => this.Config.DrawShadowBackground,
+            () => this.Config.ShadowBackgroundStrength,
             () => this.Config.DrawPanelShadow,
-            () => this.Config.UseWhiteText,
+            () => this.Config.TextColor.Equals("white", StringComparison.OrdinalIgnoreCase),
             () => this.Config.DrawTextShadow,
             () => this.Config.DrawTextUnderline
         );

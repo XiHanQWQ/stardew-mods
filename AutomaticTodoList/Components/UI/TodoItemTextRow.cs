@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-internal class TodoItemTextRow(ITodoItem item, Vector2 position, bool useWhiteText = false, bool drawShadow = true, bool drawUnderline = false, float textOpacity = 1f)
+internal class TodoItemTextRow(ITodoItem item, Vector2 position, bool useWhiteText = false, bool drawShadow = true, bool drawUnderline = false, float textOpacity = 1f, bool largeFont = false)
 {
     private static readonly Lazy<Texture2D> lazyPixel = new(() =>
     {
@@ -17,7 +17,7 @@ internal class TodoItemTextRow(ITodoItem item, Vector2 position, bool useWhiteTe
 
     public void Draw(SpriteBatch b)
     {
-        SpriteFont font = Game1.smallFont;
+        SpriteFont font = largeFont ? Game1.dialogueFont : Game1.smallFont;
         Color textColor = (useWhiteText ? Color.White : (item.IsChecked ? Color.DarkSlateGray : Color.Black)) * textOpacity;
         string text = item.Text();
 

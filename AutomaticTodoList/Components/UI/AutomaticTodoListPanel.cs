@@ -14,8 +14,10 @@ internal class AutomaticTodoListPanel(
     Func<ICollection<ITodoItem>> getItems,
     Func<float> getOpacity,
     Func<float> getTextOpacity,
+    Func<bool> getLargeFont,
     Func<bool> getShowBackground,
     Func<bool> getDrawShadowBackground,
+    Func<int> getShadowStrength,
     Func<bool> getDrawPanelShadow,
     Func<bool> getUseWhiteText,
     Func<bool> getDrawShadow,
@@ -34,7 +36,8 @@ internal class AutomaticTodoListPanel(
     /// <summary>The height of the scrollbar thumb (12px sprite at 4x scale), matching GenericModConfigMenu.</summary>
     private const int ScrollbarThumbHeight = 48;
 
-    private static readonly SpriteFont Font = Game1.smallFont;
+    /// <summary>The font used for the panel text, depending on the large-font setting (like ToDew's overlay).</summary>
+    private SpriteFont Font => getLargeFont() ? Game1.dialogueFont : Game1.smallFont;
 
     /// <summary>How many todo items are currently scrolled past (above the viewport).</summary>
     private int scrollIndex = 0;
@@ -162,7 +165,7 @@ internal class AutomaticTodoListPanel(
         // draw the overflow indicator
         if (showOverflowIndicator)
         {
-            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - scrollIndex - capacity, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity());
+            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - scrollIndex - capacity, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity(), getLargeFont());
         }
 
         // draw the scrollbar
@@ -188,7 +191,8 @@ internal class AutomaticTodoListPanel(
             if (getDrawShadowBackground())
             {
                 float shadowOpacity = MathHelper.Clamp(getOpacity(), 0f, 1f);
-                b.Draw(Game1.fadeToBlackRect, panelBounds, Color.Black * (0.2f * shadowOpacity));
+                float strength = MathHelper.Clamp(getShadowStrength(), 0, 100) / 100f;
+                b.Draw(Game1.fadeToBlackRect, panelBounds, Color.Black * (strength * shadowOpacity));
             }
 
             return;
@@ -228,7 +232,7 @@ internal class AutomaticTodoListPanel(
     private void DrawTitleTextAndDividingLine(SpriteBatch b, Vector2 position, int totalWidth, out Vector2 nextContentPosition)
     {
         // the title never gets an underline, even when the text-underline style is enabled
-        CenteredTextRow titleRow = new(TitleText, position, totalWidth, getUseWhiteText(), getDrawShadow(), drawUnderline: false, getTextOpacity());
+        CenteredTextRow titleRow = new(TitleText, position, totalWidth, getUseWhiteText(), getDrawShadow(), drawUnderline: false, getTextOpacity(), getLargeFont());
         titleRow.Draw(b);
 
         var dividerPosition = new Vector2(position.X, position.Y + (int)Font.MeasureString(TitleText).Y + LineSpacing);
@@ -250,7 +254,7 @@ internal class AutomaticTodoListPanel(
 
         foreach (ITodoItem item in items.Take(visibleItemCount()))
         {
-            TodoItemTextRow itemRow = new(item, currentPosition, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity());
+            TodoItemTextRow itemRow = new(item, currentPosition, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity(), getLargeFont());
             itemRow.Draw(b);
             currentPosition.Y += (int)Font.MeasureString(item.Text()).Y + LineSpacing;
         }
@@ -258,9 +262,9 @@ internal class AutomaticTodoListPanel(
         nextContentPosition = currentPosition;
     }
 
-    private static void DrawOverflowIndicator(SpriteBatch b, Vector2 position, int numRemaining, bool useWhiteText, bool drawShadow, bool drawUnderline, float textOpacity)
+    private static void DrawOverflowIndicator(SpriteBatch b, Vector2 position, int numRemaining, bool useWhiteText, bool drawShadow, bool drawUnderline, float textOpacity, bool largeFont)
     {
-        TextRow overflowIndicatorRow = new(I18n.Panel_OverflowIndicator(numRemaining), position, useWhiteText, drawShadow, drawUnderline, textOpacity);
+        TextRow overflowIndicatorRow = new(I18n.Panel_OverflowIndicator(numRemaining), position, useWhiteText, drawShadow, drawUnderline, textOpacity, largeFont);
         overflowIndicatorRow.Draw(b);
     }
 

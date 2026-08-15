@@ -89,6 +89,38 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             min: 0,
             max: 100
         );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_ShowPanelBackground_Name,
+            tooltip: I18n.Config_General_ShowPanelBackground_Description,
+            getValue: () => this.Config.ShowPanelBackground,
+            setValue: value => this.Config.ShowPanelBackground = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_DrawPanelShadow_Name,
+            tooltip: I18n.Config_General_DrawPanelShadow_Description,
+            getValue: () => this.Config.DrawPanelShadow,
+            setValue: value => this.Config.DrawPanelShadow = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_DrawShadowBackground_Name,
+            tooltip: I18n.Config_General_DrawShadowBackground_Description,
+            getValue: () => this.Config.DrawShadowBackground,
+            setValue: value => this.Config.DrawShadowBackground = value
+        );
+        configMenu.AddNumberOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_ShadowBackgroundStrength_Name,
+            tooltip: I18n.Config_General_ShadowBackgroundStrength_Description,
+            getValue: () => this.Config.ShadowBackgroundStrength,
+            setValue: value => this.Config.ShadowBackgroundStrength = value,
+            min: 0,
+            max: 100
+        );
+
+        // text appearance
         configMenu.AddNumberOption(
             mod: this.Manifest,
             name: I18n.Config_General_TextOpacity_Name,
@@ -100,31 +132,21 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         );
         configMenu.AddBoolOption(
             mod: this.Manifest,
-            name: I18n.Config_General_ShowPanelBackground_Name,
-            tooltip: I18n.Config_General_ShowPanelBackground_Description,
-            getValue: () => this.Config.ShowPanelBackground,
-            setValue: value => this.Config.ShowPanelBackground = value
+            name: I18n.Config_General_LargeFont_Name,
+            tooltip: I18n.Config_General_LargeFont_Description,
+            getValue: () => this.Config.LargeFont,
+            setValue: value => this.Config.LargeFont = value
         );
-        configMenu.AddBoolOption(
+        configMenu.AddTextOption(
             mod: this.Manifest,
-            name: I18n.Config_General_DrawShadowBackground_Name,
-            tooltip: I18n.Config_General_DrawShadowBackground_Description,
-            getValue: () => this.Config.DrawShadowBackground,
-            setValue: value => this.Config.DrawShadowBackground = value
-        );
-        configMenu.AddBoolOption(
-            mod: this.Manifest,
-            name: I18n.Config_General_DrawPanelShadow_Name,
-            tooltip: I18n.Config_General_DrawPanelShadow_Description,
-            getValue: () => this.Config.DrawPanelShadow,
-            setValue: value => this.Config.DrawPanelShadow = value
-        );
-        configMenu.AddBoolOption(
-            mod: this.Manifest,
-            name: I18n.Config_General_UseWhiteText_Name,
-            tooltip: I18n.Config_General_UseWhiteText_Description,
-            getValue: () => this.Config.UseWhiteText,
-            setValue: value => this.Config.UseWhiteText = value
+            name: I18n.Config_General_TextColor_Name,
+            tooltip: I18n.Config_General_TextColor_Description,
+            getValue: () => this.Config.TextColor,
+            setValue: value => this.Config.TextColor = value,
+            allowedValues: new[] { "black", "white" },
+            formatAllowedValue: value => value == "white"
+                ? I18n.Config_General_TextColor_White()
+                : I18n.Config_General_TextColor_Black()
         );
         configMenu.AddBoolOption(
             mod: this.Manifest,
@@ -263,12 +285,14 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         this.Config.PanelPosition = defaults.PanelPosition;
         this.Config.PanelOpacity = defaults.PanelOpacity;
         this.Config.TextOpacity = defaults.TextOpacity;
-        this.Config.ShowPanelBackground = defaults.ShowPanelBackground;
-        this.Config.DrawShadowBackground = defaults.DrawShadowBackground;
-        this.Config.DrawPanelShadow = defaults.DrawPanelShadow;
-        this.Config.UseWhiteText = defaults.UseWhiteText;
+        this.Config.LargeFont = defaults.LargeFont;
+        this.Config.TextColor = defaults.TextColor;
         this.Config.DrawTextShadow = defaults.DrawTextShadow;
         this.Config.DrawTextUnderline = defaults.DrawTextUnderline;
+        this.Config.ShowPanelBackground = defaults.ShowPanelBackground;
+        this.Config.DrawShadowBackground = defaults.DrawShadowBackground;
+        this.Config.ShadowBackgroundStrength = defaults.ShadowBackgroundStrength;
+        this.Config.DrawPanelShadow = defaults.DrawPanelShadow;
 
         this.Config.CheckBirthdays = defaults.CheckBirthdays;
         this.Config.CheckFestivals = defaults.CheckFestivals;
