@@ -52,8 +52,14 @@ public sealed class ModConfig
     /// <summary>The opacity of the panel background, 0&nbsp;=&nbsp;fully transparent, 1&nbsp;=&nbsp;fully opaque.</summary>
     public float PanelOpacity { get; set; } = 1f;
 
+    /// <summary>The opacity of the panel text, 0&nbsp;=&nbsp;fully transparent, 1&nbsp;=&nbsp;fully opaque.</summary>
+    public float TextOpacity { get; set; } = 1f;
+
     /// <summary>Whether to draw the panel's background box. When false, only the text is drawn.</summary>
     public bool ShowPanelBackground { get; set; } = true;
+
+    /// <summary>Whether to draw a soft dark shadow behind the panel when the background box is disabled.</summary>
+    public bool DrawShadowBackground { get; set; } = false;
 
     /// <summary>Whether to draw a shadow behind the panel's background box.</summary>
     public bool DrawPanelShadow { get; set; } = true;

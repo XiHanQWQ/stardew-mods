@@ -12,8 +12,12 @@
 
     "config.general.panel-opacity.name": "Panel opacity (%)",
     "config.general.panel-opacity.description": "How opaque the panel background should be, from 0 (transparent) to 100 (fully opaque).",
+    "config.general.text-opacity.name": "Text opacity (%)",
+    "config.general.text-opacity.description": "How opaque the panel text should be, from 0 (transparent) to 100 (fully opaque).",
     "config.general.show-panel-background.name": "Show Panel Background",
     "config.general.show-panel-background.description": "Whether to draw the dark background box behind the list. Disable this to show only the text.",
+    "config.general.draw-shadow-background.name": "Shadow Background",
+    "config.general.draw-shadow-background.description": "Draw a soft dark shadow behind the panel when the background box is disabled.",
     "config.general.draw-panel-shadow.name": "Panel Shadow",
     "config.general.draw-panel-shadow.description": "Whether to draw a shadow behind the panel's background box.",
     "config.general.use-white-text.name": "White Text",

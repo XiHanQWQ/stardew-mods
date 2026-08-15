@@ -13,7 +13,9 @@ internal class AutomaticTodoListPanel(
     Func<int> visibleItemCount,
     Func<ICollection<ITodoItem>> getItems,
     Func<float> getOpacity,
+    Func<float> getTextOpacity,
     Func<bool> getShowBackground,
+    Func<bool> getDrawShadowBackground,
     Func<bool> getDrawPanelShadow,
     Func<bool> getUseWhiteText,
     Func<bool> getDrawShadow,
@@ -160,7 +162,7 @@ internal class AutomaticTodoListPanel(
         // draw the overflow indicator
         if (showOverflowIndicator)
         {
-            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - scrollIndex - capacity, getUseWhiteText(), getDrawShadow(), getDrawUnderline());
+            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - scrollIndex - capacity, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity());
         }
 
         // draw the scrollbar
@@ -181,6 +183,14 @@ internal class AutomaticTodoListPanel(
         if (!getShowBackground())
         {
             nextContentPosition = position;
+
+            // optionally draw a soft dark shadow behind the panel instead (like ToDew's overlay)
+            if (getDrawShadowBackground())
+            {
+                float shadowOpacity = MathHelper.Clamp(getOpacity(), 0f, 1f);
+                b.Draw(Game1.fadeToBlackRect, panelBounds, Color.Black * (0.2f * shadowOpacity));
+            }
+
             return;
         }
 
@@ -218,7 +228,7 @@ internal class AutomaticTodoListPanel(
     private void DrawTitleTextAndDividingLine(SpriteBatch b, Vector2 position, int totalWidth, out Vector2 nextContentPosition)
     {
         // the title never gets an underline, even when the text-underline style is enabled
-        CenteredTextRow titleRow = new(TitleText, position, totalWidth, getUseWhiteText(), getDrawShadow(), drawUnderline: false);
+        CenteredTextRow titleRow = new(TitleText, position, totalWidth, getUseWhiteText(), getDrawShadow(), drawUnderline: false, getTextOpacity());
         titleRow.Draw(b);
 
         var dividerPosition = new Vector2(position.X, position.Y + (int)Font.MeasureString(TitleText).Y + LineSpacing);
@@ -227,7 +237,7 @@ internal class AutomaticTodoListPanel(
             (int)dividerPosition.X, (int)dividerPosition.Y,
             (int)dividerPosition.X + totalWidth, (int)dividerPosition.Y,
             b,
-            getUseWhiteText() ? Color.White : Game1.textColor,
+            (getUseWhiteText() ? Color.White : Game1.textColor) * getTextOpacity(),
             thickness: 1
         );
 
@@ -240,7 +250,7 @@ internal class AutomaticTodoListPanel(
 
         foreach (ITodoItem item in items.Take(visibleItemCount()))
         {
-            TodoItemTextRow itemRow = new(item, currentPosition, getUseWhiteText(), getDrawShadow(), getDrawUnderline());
+            TodoItemTextRow itemRow = new(item, currentPosition, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity());
             itemRow.Draw(b);
             currentPosition.Y += (int)Font.MeasureString(item.Text()).Y + LineSpacing;
         }
@@ -248,9 +258,9 @@ internal class AutomaticTodoListPanel(
         nextContentPosition = currentPosition;
     }
 
-    private static void DrawOverflowIndicator(SpriteBatch b, Vector2 position, int numRemaining, bool useWhiteText, bool drawShadow, bool drawUnderline)
+    private static void DrawOverflowIndicator(SpriteBatch b, Vector2 position, int numRemaining, bool useWhiteText, bool drawShadow, bool drawUnderline, float textOpacity)
     {
-        TextRow overflowIndicatorRow = new(I18n.Panel_OverflowIndicator(numRemaining), position, useWhiteText, drawShadow, drawUnderline);
+        TextRow overflowIndicatorRow = new(I18n.Panel_OverflowIndicator(numRemaining), position, useWhiteText, drawShadow, drawUnderline, textOpacity);
         overflowIndicatorRow.Draw(b);
     }
 

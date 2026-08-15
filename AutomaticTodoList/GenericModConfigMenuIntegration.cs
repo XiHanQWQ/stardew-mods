@@ -89,12 +89,28 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             min: 0,
             max: 100
         );
+        configMenu.AddNumberOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_TextOpacity_Name,
+            tooltip: I18n.Config_General_TextOpacity_Description,
+            getValue: () => (int)(this.Config.TextOpacity * 100),
+            setValue: value => this.Config.TextOpacity = MathHelper.Clamp(value / 100f, 0f, 1f),
+            min: 0,
+            max: 100
+        );
         configMenu.AddBoolOption(
             mod: this.Manifest,
             name: I18n.Config_General_ShowPanelBackground_Name,
             tooltip: I18n.Config_General_ShowPanelBackground_Description,
             getValue: () => this.Config.ShowPanelBackground,
             setValue: value => this.Config.ShowPanelBackground = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_DrawShadowBackground_Name,
+            tooltip: I18n.Config_General_DrawShadowBackground_Description,
+            getValue: () => this.Config.DrawShadowBackground,
+            setValue: value => this.Config.DrawShadowBackground = value
         );
         configMenu.AddBoolOption(
             mod: this.Manifest,
@@ -246,7 +262,9 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         this.Config.VisibleItemCount = defaults.VisibleItemCount;
         this.Config.PanelPosition = defaults.PanelPosition;
         this.Config.PanelOpacity = defaults.PanelOpacity;
+        this.Config.TextOpacity = defaults.TextOpacity;
         this.Config.ShowPanelBackground = defaults.ShowPanelBackground;
+        this.Config.DrawShadowBackground = defaults.DrawShadowBackground;
         this.Config.DrawPanelShadow = defaults.DrawPanelShadow;
         this.Config.UseWhiteText = defaults.UseWhiteText;
         this.Config.DrawTextShadow = defaults.DrawTextShadow;

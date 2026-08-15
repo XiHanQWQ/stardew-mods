@@ -12,8 +12,12 @@
 
     "config.general.panel-opacity.name": "Opacidade do painel (%)",
     "config.general.panel-opacity.description": "Quão opaco o fundo do painel deve ser, de 0 (transparente) a 100 (totalmente opaco).",
+    "config.general.text-opacity.name": "Opacidade do texto (%)",
+    "config.general.text-opacity.description": "Quão opaco o texto do painel deve ser, de 0 (transparente) a 100 (totalmente opaco).",
     "config.general.show-panel-background.name": "Mostrar fundo do painel",
     "config.general.show-panel-background.description": "Se deve desenhar a caixa de fundo escura atrás da lista. Desative para mostrar apenas o texto.",
+    "config.general.draw-shadow-background.name": "Fundo com sombra",
+    "config.general.draw-shadow-background.description": "Desenhar uma sombra escura suave atrás do painel quando a caixa de fundo está desativada.",
     "config.general.draw-panel-shadow.name": "Sombra do painel",
     "config.general.draw-panel-shadow.description": "Se deve desenhar uma sombra atrás da caixa de fundo do painel.",
     "config.general.use-white-text.name": "Texto branco",

@@ -4,11 +4,11 @@ using StardewValley;
 
 namespace AutomaticTodoList.Components.UI;
 
-internal class TextRow(string text, Vector2 position, bool useWhiteText = false, bool drawShadow = true, bool drawUnderline = false)
+internal class TextRow(string text, Vector2 position, bool useWhiteText = false, bool drawShadow = true, bool drawUnderline = false, float textOpacity = 1f)
 {
     public void Draw(SpriteBatch b)
     {
-        Color color = useWhiteText ? Color.White : Game1.textColor;
+        Color color = (useWhiteText ? Color.White : Game1.textColor) * textOpacity;
 
         if (drawShadow)
         {
