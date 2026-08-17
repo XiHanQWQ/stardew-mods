@@ -1,7 +1,7 @@
 {
     "Name": "Automatic To-do List Alternative",
     "Author": "XiHanQWQ",
-    "Version": "1.5.9",
+    "Version": "1.5.10",
     "Description": "Automatic task management for common tasks. Forked from Automatic To-do List by XiHanQWQ.",
     "UniqueID": "XiHanQWQ.AutomaticTodoListAlt",
     "EntryDll": "AutomaticTodoListAlt.dll",

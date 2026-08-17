@@ -51,6 +51,12 @@ internal sealed class AutomaticTodoListManager
 
     internal void OnDayStarted(DayStartedEventArgs e)
     {
+        // the engines only run while the panel is visible: hiding the panel stops all background scanning
+        if (!this.Config.IsPanelVisible)
+        {
+            return;
+        }
+
         foreach (IEngine engine in this.engines)
         {
             engine.OnDayStarted(e);
@@ -59,6 +65,12 @@ internal sealed class AutomaticTodoListManager
 
     internal void OnTimeChanged(TimeChangedEventArgs e)
     {
+        // the engines only run while the panel is visible: hiding the panel stops all background scanning
+        if (!this.Config.IsPanelVisible)
+        {
+            return;
+        }
+
         foreach (IEngine engine in this.engines)
         {
             engine.OnTimeChanged(e);
@@ -67,6 +79,12 @@ internal sealed class AutomaticTodoListManager
 
     internal void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
+        // the engines only run while the panel is visible: hiding the panel stops all background scanning
+        if (!this.Config.IsPanelVisible)
+        {
+            return;
+        }
+
         foreach (IEngine engine in this.engines)
         {
             engine.OnOneSecondUpdateTicked(e);
@@ -78,6 +96,12 @@ internal sealed class AutomaticTodoListManager
         if (this.Config.IsPanelVisible && this.automaticTodoListPanel is not null)
         {
             this.automaticTodoListPanel.UpdateScrollbarDrag(Mouse.GetState());
+        }
+
+        // the engines only run while the panel is visible: hiding the panel stops all background scanning
+        if (!this.Config.IsPanelVisible)
+        {
+            return;
         }
 
         foreach (IEngine engine in this.engines)
@@ -105,11 +129,38 @@ internal sealed class AutomaticTodoListManager
         {
             this.Config.IsPanelVisible = !this.Config.IsPanelVisible;
             SaveConfig();
+
+            if (this.Config.IsPanelVisible)
+            {
+                // panel shown again: rebuild the todo list from scratch so it is populated right away
+                foreach (IEngine engine in this.engines)
+                {
+                    engine.Reset();
+                    if (engine.IsEnabled())
+                    {
+                        engine.UpdateItems();
+                    }
+                }
+            }
+            else
+            {
+                // panel hidden: stop all background scanning and drop the cached items
+                foreach (IEngine engine in this.engines)
+                {
+                    engine.Reset();
+                }
+            }
         }
     }
 
     internal void OnMenuChanged(MenuChangedEventArgs e)
     {
+        // the engines only run while the panel is visible: hiding the panel stops all background scanning
+        if (!this.Config.IsPanelVisible)
+        {
+            return;
+        }
+
         foreach (IEngine engine in this.engines)
         {
             engine.OnMenuChanged(e);

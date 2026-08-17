@@ -11,6 +11,14 @@ internal class WaterableCropsEngine(
 {
     private IEnumerator<GameLocation>? locations = null;
 
+    public override void Reset()
+    {
+        base.Reset();
+
+        // restart the location scan from the beginning the next time UpdateItems is called
+        locations = null;
+    }
+
     public override void UpdateItems()
     {
         locations ??= GameHelper.LocationsEnumerator();

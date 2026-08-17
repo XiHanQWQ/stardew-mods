@@ -12,7 +12,7 @@ internal class WaterableCropsTodoItem(GameLocation location, bool isChecked = fa
 {
     internal readonly GameLocation Location = location;
 
-    private int RemainingUnwateredCount { get; set; } = location.getTotalUnwateredCrops();
+    private int RemainingUnwateredCount { get; set; } = location.GetTotalUnwateredCropsExcludingGinger();
 
     public override string Text()
     {

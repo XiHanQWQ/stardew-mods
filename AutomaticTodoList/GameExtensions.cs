@@ -46,33 +46,22 @@ internal static class GameExtensions
 
     public static int GetTotalUnwateredCropsExcludingGinger(this GameLocation location)
     {
-        if (location.IsGingerIslandLocation())
+        int num = 0;
+        foreach (TerrainFeature feature in location.terrainFeatures.Values)
         {
-            int num = 0;
-            foreach (TerrainFeature feature in location.terrainFeatures.Values)
+            if (feature is HoeDirt hoeDirt &&
+                hoeDirt.crop is not null &&
+                !hoeDirt.crop.dead.Value && // dead crops (rotten plants) can't grow, so never prompt to water them
+                hoeDirt.needsWatering() &&
+                !hoeDirt.isWatered() &&
+                !hoeDirt.crop.IsGinger()
+            )
             {
-                if (feature is HoeDirt hoeDirt &&
-                    hoeDirt.crop is not null &&
-                    hoeDirt.needsWatering() &&
-                    !hoeDirt.isWatered() &&
-                    !hoeDirt.crop.IsGinger()
-                )
-                {
-                    num++;
-                }
+                num++;
             }
-
-            return num;
         }
-        else
-        {
-            return location.getTotalUnwateredCrops();
-        }
-    }
 
-    public static bool IsGingerIslandLocation(this GameLocation location)
-    {
-        return location is IslandLocation;
+        return num;
     }
 
     public static bool IsGinger(this Crop crop)
