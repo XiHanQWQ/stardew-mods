@@ -1,4 +1,3 @@
-using System.Reflection;
 using AutomaticTodoList.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -59,25 +58,9 @@ internal class AnimalsTodoItem(string group, bool isChecked = false)
         if (a is null)
             return string.Empty;
 
-        // prefer the building's displayName if the animal has a home
         if (a.home is StardewValley.Buildings.Building b)
-        {
-            // use reflection because the field/property isn't public in the SDK
-            var nameProp = b.GetType().GetProperty("displayName")
-                           ?? b.GetType().GetProperty("DisplayName");
-            if (nameProp != null && nameProp.GetValue(b) is string s && !string.IsNullOrEmpty(s))
-                return s;
-            var nameField = b.GetType().GetField("displayName");
-            if (nameField != null && nameField.GetValue(b) is string sf && !string.IsNullOrEmpty(sf))
-                return sf;
-        }
+            return ReadyMachinesTodoItem.GetBuildingDisplayName(b);
 
-        // fall back to the animal's "displayHouse" field if present
-        var field = a.GetType().GetField("displayHouse");
-        if (field != null && field.GetValue(a) is string dh && !string.IsNullOrEmpty(dh))
-            return dh;
-
-        // last resort, use the current location name
         return a.currentLocation?.Name ?? string.Empty;
     }
 

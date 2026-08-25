@@ -1,23 +1,22 @@
 using AutomaticTodoList.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.GameData.Buildings;
+using StardewValley.TokenizableStrings;
 
 namespace AutomaticTodoList.Components.TodoItems;
 
-/// <summary>A ReadyMachinesTodoItem todo item.</summary>
-/// <remarks>Initializes a new instance of the <see cref="ReadyMachinesTodoItem"/> class.</remarks>
-/// <param name="text">The text of the todo item.</param>
-internal class ReadyMachinesTodoItem(GameLocation location, bool isChecked = false)
+internal class ReadyMachinesTodoItem(string groupName, bool isChecked = false)
     : BaseTodoItem(isChecked, TaskPriority.ReadyMachines)
 {
-    public readonly GameLocation Location = location;
+    public string GroupName { get; } = groupName;
 
-    private int ReadyMachinesCount { get; set; } = location.GetNumberOfReadyMachinesExcludingBuildings();
+    private int ReadyMachinesCount { get; set; } = CountMachinesForGroup(groupName);
 
     public override string Text()
     {
         return I18n.Items_ReadyMachines_Text(
-            this.Location.GetDisplayName() ?? this.Location.Name,
+            this.GroupName,
             this.ReadyMachinesCount
         );
     }
@@ -26,7 +25,7 @@ internal class ReadyMachinesTodoItem(GameLocation location, bool isChecked = fal
     {
         if (IsChecked)
         {
-            var machineCount = this.Location.GetNumberOfReadyMachinesExcludingBuildings();
+            var machineCount = CountMachinesForGroup(this.GroupName);
             if (machineCount != this.ReadyMachinesCount)
             {
                 this.ReadyMachinesCount = machineCount;
@@ -43,7 +42,7 @@ internal class ReadyMachinesTodoItem(GameLocation location, bool isChecked = fal
     {
         if (!IsChecked)
         {
-            var machineCount = this.Location.getNumberOfMachinesReadyForHarvest();
+            var machineCount = CountMachinesForGroup(this.GroupName);
             if (machineCount != this.ReadyMachinesCount)
             {
                 this.ReadyMachinesCount = machineCount;
@@ -58,11 +57,61 @@ internal class ReadyMachinesTodoItem(GameLocation location, bool isChecked = fal
 
     public override bool Equals(object? obj)
     {
-        return obj is ReadyMachinesTodoItem otherItem && this.Location.Name == otherItem.Location.Name;
+        return obj is ReadyMachinesTodoItem other &&
+               string.Equals(this.GroupName, other.GroupName, StringComparison.OrdinalIgnoreCase);
     }
 
     public override int GetHashCode()
     {
-        return (this.GetType(), this.Location.Name).GetHashCode();
+        return (this.GetType(), this.GroupName.ToLowerInvariant()).GetHashCode();
+    }
+
+    internal static int CountMachinesForGroup(string groupName)
+    {
+        int count = 0;
+        Utility.ForEachLocation(location =>
+        {
+            if (location is null)
+                return true;
+
+            string displayName = location.DisplayName ?? location.Name;
+            if (string.Equals(displayName, groupName, StringComparison.OrdinalIgnoreCase))
+            {
+                count += location.GetNumberOfReadyMachinesExcludingBuildings();
+            }
+
+            foreach (var building in location.buildings)
+            {
+                if (building?.indoors?.Value is GameLocation interior)
+                {
+                    string buildingName = GetBuildingDisplayName(building);
+                    if (string.Equals(buildingName, groupName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        count += interior.GetNumberOfReadyMachinesExcludingBuildings();
+                    }
+                }
+            }
+
+            return true;
+        });
+        return count;
+    }
+
+    internal static string GetBuildingDisplayName(StardewValley.Buildings.Building building)
+    {
+        if (building.GetData() is BuildingData data && !string.IsNullOrEmpty(data.Name))
+            return TokenParser.ParseText(data.Name);
+
+        string buildingType = building.buildingType.Value;
+        if (!string.IsNullOrEmpty(buildingType))
+        {
+            string localized = Game1.content.LoadStringReturnNullIfNotFound(
+                $"Strings/Buildings:{buildingType}_name"
+            );
+            if (!string.IsNullOrEmpty(localized))
+                return localized;
+        }
+
+        return buildingType;
     }
 }

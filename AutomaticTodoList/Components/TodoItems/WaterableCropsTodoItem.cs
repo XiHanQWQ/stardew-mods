@@ -17,7 +17,7 @@ internal class WaterableCropsTodoItem(GameLocation location, bool isChecked = fa
     public override string Text()
     {
         return I18n.Items_WaterableCrops_Text(
-            this.Location.GetDisplayName() ?? this.Location.Name,
+            this.Location.DisplayName ?? this.Location.Name,
             this.RemainingUnwateredCount
         );
     }
