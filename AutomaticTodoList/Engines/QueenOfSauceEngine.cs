@@ -3,6 +3,7 @@ using AutomaticTodoList.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using StardewValley.TokenizableStrings;
 
 namespace AutomaticTodoList.Engines;
 
@@ -60,12 +61,41 @@ internal class QueenOfSauceEngine(
             return;
         }
 
-        // Split the recipe info info
+        // Split the recipe info
         string recipeName = translation.Split('/')[0];
 
         if (!Game1.player.cookingRecipes.ContainsKey(recipeName))
         {
-            items.Add(new QueenOfSauceTodoItem(recipeName));
+            string displayName = GetRecipeDisplayName(recipeName);
+            items.Add(new QueenOfSauceTodoItem(displayName));
         }
+    }
+
+    private static string GetRecipeDisplayName(string recipeName)
+    {
+        if (DataLoader.CookingRecipes(Game1.content).TryGetValue(recipeName, out string? recipeData))
+        {
+            string[] fields = recipeData.Split('/');
+
+            // field index 4 is the display name (tokenizable string)
+            if (fields.Length > 4 && !string.IsNullOrEmpty(fields[4]))
+            {
+                string parsed = TokenParser.ParseText(fields[4]);
+                if (!string.IsNullOrEmpty(parsed))
+                    return parsed;
+            }
+
+            // fallback: use the item's display name from the recipe's yield
+            // field index 2 is the yield item ID
+            if (fields.Length > 2 && !string.IsNullOrEmpty(fields[2]))
+            {
+                string yieldId = fields[2].Split(' ')[0];
+                Item item = ItemRegistry.Create(yieldId);
+                if (!string.IsNullOrEmpty(item.DisplayName))
+                    return item.DisplayName;
+            }
+        }
+
+        return recipeName;
     }
 }

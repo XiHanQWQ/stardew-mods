@@ -1,0 +1,119 @@
+[center][size=5][b]To-Do List Mod[/b][/size][/center]
+[line]
+
+[heading]Installation / 安装[/heading]
+[list]
+[*]Install the latest version of [url=https://smapi.io/]SMAPI[/url].
+安装最新版本的 [url=https://smapi.io/]SMAPI[/url]。
+[*]Download this mod from Nexus Mods and unzip it into Stardew Valley/Mods.
+从 Nexus Mods 下载本 Mod，解压到 Stardew Valley/Mods 文件夹。
+[*]Run the game using SMAPI.
+使用 SMAPI 启动游戏。
+[/list]
+
+[line]
+
+[heading]How to Use / 使用方法[/heading]
+[list]
+[*]By default, the to-do list appears in the top left corner of your screen.
+默认情况下，待办清单显示在屏幕左上角。
+[*]The default hotkey to show/hide the list is LeftShift + L (configurable).
+默认的显示/隐藏快捷键是 LeftShift + L（可配置）。
+[*]Tasks appear and are checked off automatically based on in-game conditions.
+任务会根据游戏内的不同情况自动出现并自动勾选。
+[/list]
+
+[b]Example / 示例：[/b]
+On the morning of a villager's birthday, a task like "Give XYZ a birthday gift" will appear. Gifting that villager on that day checks it off.
+某位村民生日当天的早晨，清单上会出现 "给 XYZ 送生日礼物" 的任务。当天给该村民送礼即可自动勾选该任务。
+
+[line]
+
+[heading]Supported Tasks / 支持的任务类型[/heading]
+Each task type can be toggled on/off individually in the settings.
+以下任务类型均可单独在设置中开启或关闭（每种均可独立开关）。
+
+[list]
+[*][b]Villager birthdays[/b] – reminds you to gift the birthday villager.
+[b]村民生日[/b] – 提醒给过生日的村民送礼。
+[*][b]Harvestable crops[/b] – shows ready-to-harvest crops (flowers can be included/excluded via config).
+[b]可收获的作物[/b] – 显示已成熟的作物（可通过配置包含/排除花朵）。
+[*][b]Unwatered crops[/b] – alerts you to crops needing water.
+[b]未浇水的作物[/b] – 提醒需要浇水的作物。
+[*][b]Ready machines[/b] – indicates machines that have finished processing (including machines inside buildings).
+[b]已就绪的机器[/b] – 显示已完成加工的机器（包括建筑内部的机器）。
+[*][b]Harvestable crab pots[/b] – shows crab pots with ready catch.
+[b]待收获的蟹笼[/b] – 显示已有收获的蟹笼。
+[*][b]Tools ready for pickup[/b] – notifies when upgraded tools are ready at Clint's.
+[b]待取回的工具[/b] – 克林特处升级完成的工具。
+[*][b]Daily quest board[/b] – reminds you to check the board outside Pierre's.
+[b]每日任务板[/b] – 提醒检查皮埃尔商店外的任务板。
+[*][b]Special Orders Boards[/b] – reminds you to check for special orders.
+[b]特别订单板[/b] – 提醒检查特别订单板。
+[*][b]Traveling Merchant cart[/b] – reminds you to visit the cart when it's present.
+[b]旅行商人[/b] – 当旅行商人出现时提醒拜访。
+[*][b]Queen of Sauce[/b] – alerts you when a new recipe is available on TV.
+[b]酱料女王[/b] – 当电视播出新食谱时提醒收看。
+[*][b]Gifting specified villagers[/b] – lets you set custom villagers to gift regularly.
+[b]指定村民送礼[/b] – 可自定义需要定期送礼的村民。
+[*][b]Coop & Barn animals[/b] – reminds you to pet your farm animals (chickens, cows, etc.).
+[b]鸡舍和畜棚动物[/b] – 提醒抚摸农场动物（鸡、牛等）。
+[*][b]Pet[/b] – reminds you to pet your dog or cat.
+[b]宠物[/b] – 提醒抚摸你的狗或猫。
+[/list]
+
+[line]
+
+[heading]Configuration / 配置[/heading]
+All settings are fully compatible with Generic Mod Config Menu (GMCM).
+所有设置均与 通用 Mod 配置菜单（Generic Mod Config Menu） 完全兼容。
+You can toggle each task type, adjust the hotkey, and customize the panel appearance.
+您可以在 GMCM 中开关各类任务、调整快捷键以及自定义面板外观。
+
+[b]New Visual Options (recent update) / 新增视觉选项（最近更新）[/b]
+[list]
+[*][b]Show Panel Background[/b] – hide the background box and draw only text.
+[b]显示面板背景[/b] – 隐藏背景框，只显示文字。
+[*][b]Panel Shadow[/b] – toggle a shadow behind the panel background.
+[b]面板阴影[/b] – 切换面板背景后的阴影。
+[*][b]White Text[/b] – draw panel text in white instead of dark (for better visibility).
+[b]白色文字[/b] – 使用白色文字代替深色文字（提高可见性）。
+[*][b]Text Shadow[/b] – toggle a shadow behind each text line.
+[b]文字阴影[/b] – 切换每行文字后的阴影。
+[*][b]Text Underline[/b] – draw an underline beneath each list item.
+[b]文字下划线[/b] – 为每个列表项添加下划线。
+[/list]
+
+[b]Harvestable Crops Options / 可收获作物选项[/b]
+[list]
+[*][b]Include Flowers[/b] – when enabled, harvestable flowers (tulips, sunflowers, etc.) are included in the crops check. Default: off.
+[b]包含花朵[/b] – 开启后，可收获的花朵（郁金香、向日葵等）将纳入作物检查。默认：关闭。
+[/list]
+
+[b]Panel Improvements / 面板改进[/b]
+[list]
+[*]The panel is now scrollable with a scrollbar (use mouse wheel or drag, similar to GMCM).
+面板现在可滚动，并带有滚动条（可使用鼠标滚轮或拖拽，类似 GMCM 风格）。
+[*]The panel title automatically follows the current game language (i18n support).
+面板标题会根据当前游戏语言自动切换（i18n 支持）。
+[*]Mouse wheel scrolling only works when the cursor is over the panel.
+鼠标滚轮滚动仅在光标悬停于面板上时生效。
+[*]Scrollbar opacity matches panel opacity; a plain style without background is available.
+滚动条不透明度跟随面板不透明度；支持无背景的简约样式。
+[*]Overflow indicator (scroll hint) is retained.
+保留溢出指示器（滚动提示）。
+[/list]
+
+[line]
+
+[heading]Links / 相关链接[/heading]
+[list]
+[*][url=https://smapi.io/]SMAPI[/url]
+[url=https://smapi.io/]SMAPI[/url]
+[*][url=https://www.nexusmods.com/stardewvalley/mods/5098]Generic Mod Config Menu (GMCM)[/url]
+[url=https://www.nexusmods.com/stardewvalley/mods/5098]通用 Mod 配置菜单 (GMCM)[/url]
+[*][url=https://www.nexusmods.com/stardewvalley/mods/26008]Automatic To-Do List[/url]
+[url=https://www.nexusmods.com/stardewvalley/mods/26008]Automatic To-Do List[/url]
+[*][url=https://www.nexusmods.com/stardewvalley/mods/43468]Automatic To-Do List Fork[/url]
+[url=https://www.nexusmods.com/stardewvalley/mods/43468]Automatic To-Do List Fork[/url]
+[/list]

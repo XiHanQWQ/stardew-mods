@@ -226,6 +226,7 @@ internal sealed class AutomaticTodoListManager
         this.engines.Add(new AnimalsEngine(Log, () => this.Config.CheckUnpettedAnimals));
         this.engines.Add(new PetEngine(Log, () => this.Config.CheckUnpettedAnimals));
         this.engines.Add(new ReadyMachinesEngine(Log, () => this.Config.CheckReadyMachines));
+        this.engines.Add(new HarvestableCrabPotsEngine(Log, () => this.Config.CheckHarvestableCrabPots));
         this.engines.Add(new SpecialOrdersBoardEngine(Log, () => this.Config.CheckSpecialOrdersBoard));
         this.engines.Add(new TestEngine(Log, () => false));
         this.engines.Add(new ToolPickupEngine(Log, () => this.Config.CheckToolPickup));

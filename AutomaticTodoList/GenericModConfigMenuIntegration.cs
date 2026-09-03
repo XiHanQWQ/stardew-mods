@@ -192,6 +192,13 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         );
         configMenu.AddBoolOption(
             mod: this.Manifest,
+            name: I18n.Config_Checks_HarvestableCrops_IncludeFlowers_Name,
+            tooltip: I18n.Config_Checks_HarvestableCrops_IncludeFlowers_Description,
+            getValue: () => this.Config.IncludeFlowers,
+            setValue: value => this.Config.IncludeFlowers = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
             name: I18n.Config_Checks_WaterableCrops_Toggle_Name,
             tooltip: I18n.Config_Checks_WaterableCrops_Toggle_Description,
             getValue: () => this.Config.CheckWaterableCrops,
@@ -211,6 +218,13 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             tooltip: I18n.Config_Checks_ReadyMachines_Toggle_Description,
             getValue: () => this.Config.CheckReadyMachines,
             setValue: value => this.Config.CheckReadyMachines = value
+        );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_Checks_HarvestableCrabPots_Toggle_Name,
+            tooltip: I18n.Config_Checks_HarvestableCrabPots_Toggle_Description,
+            getValue: () => this.Config.CheckHarvestableCrabPots,
+            setValue: value => this.Config.CheckHarvestableCrabPots = value
         );
         configMenu.AddBoolOption(
             mod: this.Manifest,
@@ -297,9 +311,11 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         this.Config.CheckBirthdays = defaults.CheckBirthdays;
         this.Config.CheckFestivals = defaults.CheckFestivals;
         this.Config.CheckHarvestableCrops = defaults.CheckHarvestableCrops;
+        this.Config.IncludeFlowers = defaults.IncludeFlowers;
         this.Config.CheckWaterableCrops = defaults.CheckWaterableCrops;
         this.Config.CheckUnpettedAnimals = defaults.CheckUnpettedAnimals;
         this.Config.CheckReadyMachines = defaults.CheckReadyMachines;
+        this.Config.CheckHarvestableCrabPots = defaults.CheckHarvestableCrabPots;
         this.Config.CheckToolPickup = defaults.CheckToolPickup;
         this.Config.CheckDailyQuestBulletinBoard = defaults.CheckDailyQuestBulletinBoard;
         this.Config.CheckSpecialOrdersBoard = defaults.CheckSpecialOrdersBoard;

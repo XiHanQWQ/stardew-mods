@@ -1,3 +1,4 @@
+using SObject = StardewValley.Object;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
@@ -7,6 +8,8 @@ namespace AutomaticTodoList;
 
 internal static class GameExtensions
 {
+    internal static ModConfig? Config { get; set; }
+
     public static int GetNumberOfReadyMachinesExcludingBuildings(this GameLocation location)
     {
         int num = 0;
@@ -29,19 +32,32 @@ internal static class GameExtensions
 
     public static int GetTotalCropsReadyForHarvestExcludingForagables(this GameLocation location)
     {
+        bool includeFlowers = Config?.IncludeFlowers ?? false;
         int num = 0;
         foreach (TerrainFeature value in location.terrainFeatures.Values)
         {
             if (
                 value is HoeDirt hoeDirt && hoeDirt.readyForHarvest() && // existing checks
-                hoeDirt.crop is not null && !hoeDirt.crop.forageCrop.Value // added to exclude foragables
+                hoeDirt.crop is not null && !hoeDirt.crop.forageCrop.Value // exclude foragables
             )
             {
+                if (!includeFlowers && IsFlowerCrop(hoeDirt.crop))
+                    continue;
+
                 num++;
             }
         }
 
         return num;
+    }
+
+    private static bool IsFlowerCrop(Crop crop)
+    {
+        if (crop.indexOfHarvest.Value is null)
+            return false;
+
+        Item item = ItemRegistry.Create(crop.indexOfHarvest.Value);
+        return item.Category == SObject.flowersCategory;
     }
 
     public static int GetTotalUnwateredCropsExcludingGinger(this GameLocation location)

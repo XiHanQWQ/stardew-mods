@@ -28,12 +28,16 @@ public sealed class ModConfig
 
     public bool CheckHarvestableCrops { get; set; } = true;
 
+    public bool IncludeFlowers { get; set; } = false;
+
     public bool CheckWaterableCrops { get; set; } = true;
 
     // pets that still need to be petted
     public bool CheckUnpettedAnimals { get; set; } = true;
 
     public bool CheckReadyMachines { get; set; } = true;
+
+    public bool CheckHarvestableCrabPots { get; set; } = true;
 
     public bool CheckToolPickup { get; set; } = true;
 
