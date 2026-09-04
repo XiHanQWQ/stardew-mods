@@ -66,6 +66,9 @@
     "config.checks.gifting-npcs.npcs.name": "Villagers To Gift",
     "config.checks.gifting-npcs.npcs.description": "A comma-separated list of villagers to gift. If left blank, all villagers will be selected",
 
+    "config.general.preserve-completed-items.name": "Preserve Completed Items",
+    "config.general.preserve-completed-items.description": "When enabled, completed (checked) items are preserved when the panel is hidden and shown again when the panel is reopened.",
+
     // panel text
     "panel.title": "Todo List",
     "panel.overflow-indicator": "... ({{count}} more not shown)",
@@ -85,7 +88,7 @@
     "items.harvestable-crab-pots.text": "Collect crab pots ({{location}}) ({{remaining}} remaining)",
     "items.special-orders-board.standard.text": "Check the special orders board in town",
     "items.special-orders-board.qi.text": "Check the special orders board in Mr. Qi's Walnut Room",
-    "items.tool-pickup.text": "Pick up {{tool}} from Clint",
+    "items.tool-pickup.text": "Pick up tool from Clint: {{tool}}",
     "items.traveling-merchant.text": "Visit the Traveling Merchant's cart",
     "items.waterable-crops.text": "Water crops ({{location}}) ({{remaining}} remaining)",
     "items.animals.single.text": "Pet {{animal}}",

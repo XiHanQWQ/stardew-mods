@@ -1,22 +1,27 @@
 using AutomaticTodoList.Components.TodoItems;
 using AutomaticTodoList.Models;
 using StardewValley;
+using StardewValley.Characters;
 
 namespace AutomaticTodoList.Engines;
 
-/// <summary>An engine which adds a single to-do for petting the player's house animal.</summary>
 internal class PetEngine(
-    Action<string,StardewModdingAPI.LogLevel> log,
+    Action<string, StardewModdingAPI.LogLevel> log,
     Func<bool> isEnabled
 ) : BaseEngine<PetTodoItem>(log, isEnabled, Frequency.OnceADay)
 {
     public override void UpdateItems()
     {
-        var pet = Game1.player.getPet();
-        if (pet is null)
+        Farm? farm = Game1.getFarm();
+        if (farm is null)
             return;
 
-        if (!PetTodoItem.HasBeenPetted(pet))
-            items.Add(new PetTodoItem());
+        foreach (var character in farm.characters)
+        {
+            if (character is Pet pet && !PetTodoItem.HasBeenPetted(pet))
+            {
+                items.Add(new PetTodoItem(pet));
+            }
+        }
     }
 }

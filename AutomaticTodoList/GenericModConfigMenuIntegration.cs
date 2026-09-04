@@ -162,6 +162,13 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
             getValue: () => this.Config.DrawTextUnderline,
             setValue: value => this.Config.DrawTextUnderline = value
         );
+        configMenu.AddBoolOption(
+            mod: this.Manifest,
+            name: I18n.Config_General_PreserveCompletedItems_Name,
+            tooltip: I18n.Config_General_PreserveCompletedItems_Description,
+            getValue: () => this.Config.PreserveCompletedItems,
+            setValue: value => this.Config.PreserveCompletedItems = value
+        );
 
 
         // engines
@@ -307,6 +314,7 @@ internal class GenericModConfigMenuIntegration(IManifest manifest, IModRegistry 
         this.Config.DrawShadowBackground = defaults.DrawShadowBackground;
         this.Config.ShadowBackgroundStrength = defaults.ShadowBackgroundStrength;
         this.Config.DrawPanelShadow = defaults.DrawPanelShadow;
+        this.Config.PreserveCompletedItems = defaults.PreserveCompletedItems;
 
         this.Config.CheckBirthdays = defaults.CheckBirthdays;
         this.Config.CheckFestivals = defaults.CheckFestivals;

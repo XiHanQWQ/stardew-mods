@@ -1,9 +1,6 @@
 using AutomaticTodoList.Components.TodoItems;
 using AutomaticTodoList.Models;
-using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.Objects;
-using StardewValley.TokenizableStrings;
 
 namespace AutomaticTodoList.Engines;
 
@@ -13,89 +10,37 @@ internal class QueenOfSauceEngine(
 ) : BaseEngine<QueenOfSauceTodoItem>(log, isEnabled, Frequency.OnceADay)
 {
     private static readonly VirtualTV TV = new();
+    private static readonly Dictionary<string, string> RecipesByDescription = new();
 
     public override void UpdateItems()
     {
-        uint daysPlayed = Game1.stats.DaysPlayed;
-
-        // see if recipes even apply yet
-        if (daysPlayed < 5)
-        {
+        if (Game1.stats.DaysPlayed < 5)
             return;
-        }
 
-        // get the week number
-        int weekNum = (int)(daysPlayed % 224U / 7U);
-        if (daysPlayed % 224U == 0U)
-        {
-            weekNum = 32;
-        }
+        if (RecipesByDescription.Count == 0)
+            LoadRecipes();
 
-        // check the day of the week
-        DayOfWeek dayOfWeek = (DayOfWeek)(Game1.dayOfMonth % 7);
-
-        switch (dayOfWeek)
-        {
-            case DayOfWeek.Sunday:
-                // the assigned week is correct since they're just in order
-                break;
-            case DayOfWeek.Wednesday:
-                // we need to run the game's rerun function to see what's on TV today
-                if (Game1.player.team.lastDayQueenOfSauceRerunUpdated.Value != Game1.Date.TotalDays)
-                {
-                    Game1.player.team.lastDayQueenOfSauceRerunUpdated.Set(Game1.Date.TotalDays);
-                    Game1.player.team.queenOfSauceRerunWeek.Set(TV.GetRerunWeek());
-                }
-                weekNum = Game1.player.team.queenOfSauceRerunWeek.Value;
-                break;
-            default:
-                // not a Queen of Sauce day
-                return;
-        }
-
-        // Dictionary of recipes
-        Dictionary<string, string> cookingChannelRecipes = DataLoader.Tv_CookingChannel(Game1.temporaryContent);
-        if (!cookingChannelRecipes.TryGetValue($"{weekNum}", out string? translation) || translation is null)
-        {
-            // couldn't find recipe for some reason
+        string[] dialogue = TV.GetWeeklyRecipe();
+        if (dialogue.Length == 0 || !RecipesByDescription.TryGetValue(dialogue[0], out string? recipeName))
             return;
-        }
 
-        // Split the recipe info
-        string recipeName = translation.Split('/')[0];
+        if (Game1.player.knowsRecipe(recipeName))
+            return;
 
-        if (!Game1.player.cookingRecipes.ContainsKey(recipeName))
-        {
-            string displayName = GetRecipeDisplayName(recipeName);
-            items.Add(new QueenOfSauceTodoItem(displayName));
-        }
+        var recipe = new CraftingRecipe(recipeName, true);
+        items.Add(new QueenOfSauceTodoItem(recipe.DisplayName));
     }
 
-    private static string GetRecipeDisplayName(string recipeName)
+    private static void LoadRecipes()
     {
-        if (DataLoader.CookingRecipes(Game1.content).TryGetValue(recipeName, out string? recipeData))
+        var cookingChannel = DataLoader.Tv_CookingChannel(Game1.temporaryContent);
+        foreach (var entry in cookingChannel)
         {
-            string[] fields = recipeData.Split('/');
-
-            // field index 4 is the display name (tokenizable string)
-            if (fields.Length > 4 && !string.IsNullOrEmpty(fields[4]))
+            string[] fields = entry.Value.Split('/');
+            if (fields.Length > 1)
             {
-                string parsed = TokenParser.ParseText(fields[4]);
-                if (!string.IsNullOrEmpty(parsed))
-                    return parsed;
-            }
-
-            // fallback: use the item's display name from the recipe's yield
-            // field index 2 is the yield item ID
-            if (fields.Length > 2 && !string.IsNullOrEmpty(fields[2]))
-            {
-                string yieldId = fields[2].Split(' ')[0];
-                Item item = ItemRegistry.Create(yieldId);
-                if (!string.IsNullOrEmpty(item.DisplayName))
-                    return item.DisplayName;
+                RecipesByDescription[fields[1]] = fields[0];
             }
         }
-
-        return recipeName;
     }
 }

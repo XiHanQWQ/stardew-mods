@@ -21,6 +21,9 @@ internal sealed class AutomaticTodoListManager
     private readonly HashSet<IEngine> engines = [];
     private AutomaticTodoListPanel automaticTodoListPanel = null!; // initialized in OnGameLaunched
 
+    /// <summary>Preserved checked items from when the panel was last hidden.</summary>
+    private List<ITodoItem> preservedCheckedItems = [];
+
     /// <summary>Initializes a new instance of the <see cref="AutomaticTodoListManager"/> class.</summary>
     public AutomaticTodoListManager(ModConfig config, Action saveConfig, Action<string, StardewModdingAPI.LogLevel> log)
     {
@@ -51,6 +54,9 @@ internal sealed class AutomaticTodoListManager
 
     internal void OnDayStarted(DayStartedEventArgs e)
     {
+        // clear preserved items from previous day
+        this.preservedCheckedItems.Clear();
+
         // the engines only run while the panel is visible: hiding the panel stops all background scanning
         if (!this.Config.IsPanelVisible)
         {
@@ -144,7 +150,15 @@ internal sealed class AutomaticTodoListManager
             }
             else
             {
-                // panel hidden: stop all background scanning and drop the cached items
+                // panel hidden: save checked items if preserve option is enabled, then stop scanning
+                if (this.Config.PreserveCompletedItems)
+                {
+                    // collect checked items from the merged list (GatherItems includes preserved items)
+                    this.preservedCheckedItems = this.GatherItems()
+                        .Where(item => item.IsChecked)
+                        .ToList();
+                }
+
                 foreach (IEngine engine in this.engines)
                 {
                     engine.Reset();
@@ -185,6 +199,29 @@ internal sealed class AutomaticTodoListManager
             }
             return accumulatedItems;
         });
+
+        // merge preserved checked items: replace matching unchecked items, or add new ones
+        if (this.Config.PreserveCompletedItems && this.preservedCheckedItems.Count > 0)
+        {
+            var newTextSet = new HashSet<string>(allItems.Select(i => i.Text()));
+            var mergedItems = new List<ITodoItem>(allItems.Count + this.preservedCheckedItems.Count);
+
+            foreach (var item in allItems)
+            {
+                var preserved = this.preservedCheckedItems.FirstOrDefault(p => p.Text() == item.Text());
+                mergedItems.Add(preserved ?? item);
+            }
+
+            foreach (var preserved in this.preservedCheckedItems)
+            {
+                if (!newTextSet.Contains(preserved.Text()))
+                {
+                    mergedItems.Add(preserved);
+                }
+            }
+
+            allItems = mergedItems;
+        }
 
         allItems.Sort((a, b) =>
         {

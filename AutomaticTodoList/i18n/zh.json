@@ -66,6 +66,9 @@
     "config.checks.gifting-npcs.npcs.name": "要送礼的村民",
     "config.checks.gifting-npcs.npcs.description": "用逗号分隔要送礼的村民名单。如果留空，则会选择所有村民",
 
+    "config.general.preserve-completed-items.name": "保留已完成项目",
+    "config.general.preserve-completed-items.description": "启用后，关闭面板时已勾选的项目将被保留，重新打开面板时会继续显示。",
+
     // panel text
     "panel.title": "待办事项",
     "panel.overflow-indicator": "... (还有{{count}}项未显示)",
@@ -85,7 +88,7 @@
     "items.harvestable-crab-pots.text": "收获蟹笼（{{location}}），还剩 {{remaining}} 个",
     "items.special-orders-board.standard.text": "查看城镇中的特别订单看板",
     "items.special-orders-board.qi.text": "查看齐先生的核桃房中的特别订单看板",
-    "items.tool-pickup.text": "从克林特处领取 {{tool}}",
+    "items.tool-pickup.text": "从克林特处领取工具：{{tool}}",
     "items.traveling-merchant.text": "访问旅行商人的货车",
     "items.waterable-crops.text": "给作物浇水（{{location}}），还剩 {{remaining}} 个",
     "items.animals.single.text": "爱抚 {{animal}}",

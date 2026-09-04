@@ -59,7 +59,7 @@ internal class AnimalsTodoItem(string group, bool isChecked = false)
             return string.Empty;
 
         if (a.home is StardewValley.Buildings.Building b)
-            return ReadyMachinesTodoItem.GetBuildingDisplayName(b);
+            return GameExtensions.GetBuildingDisplayName(b);
 
         return a.currentLocation?.Name ?? string.Empty;
     }

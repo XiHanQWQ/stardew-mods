@@ -73,7 +73,7 @@ internal class HarvestableCrabPotsTodoItem(string groupName, bool isChecked = fa
             if (location is null)
                 return true;
 
-            string displayName = location.DisplayName ?? location.Name;
+            string displayName = location.GetLocationDisplayName();
             if (string.Equals(displayName, groupName, StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var obj in location.objects.Values)

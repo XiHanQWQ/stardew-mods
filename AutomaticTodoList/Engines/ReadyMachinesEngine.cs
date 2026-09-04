@@ -18,28 +18,12 @@ internal class ReadyMachinesEngine(
             if (gameLocation is null)
                 return true;
 
-            // count machines in this top-level location
             int count = gameLocation.GetNumberOfReadyMachinesExcludingBuildings();
             if (count > 0)
             {
-                string displayName = gameLocation.DisplayName ?? gameLocation.Name;
+                string displayName = gameLocation.GetLocationDisplayName();
                 machineGroups.TryGetValue(displayName, out int existing);
                 machineGroups[displayName] = existing + count;
-            }
-
-            // count machines in buildings at this location
-            foreach (var building in gameLocation.buildings)
-            {
-                if (building?.indoors?.Value is GameLocation interior)
-                {
-                    int buildingCount = interior.GetNumberOfReadyMachinesExcludingBuildings();
-                    if (buildingCount > 0)
-                    {
-                        string buildingName = ReadyMachinesTodoItem.GetBuildingDisplayName(building);
-                        machineGroups.TryGetValue(buildingName, out int existing);
-                        machineGroups[buildingName] = existing + buildingCount;
-                    }
-                }
             }
 
             return true;

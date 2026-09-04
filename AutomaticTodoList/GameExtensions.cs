@@ -1,14 +1,63 @@
 using SObject = StardewValley.Object;
 using StardewValley;
+using StardewValley.GameData.Buildings;
 using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+using StardewValley.TokenizableStrings;
 
 namespace AutomaticTodoList;
 
 internal static class GameExtensions
 {
     internal static ModConfig? Config { get; set; }
+
+    /// <summary>Get the localized display name for any location, including building interiors.</summary>
+    public static string GetLocationDisplayName(this GameLocation location)
+    {
+        string? name = location.GetDisplayName();
+        if (!string.IsNullOrEmpty(name) && name != location.Name)
+            return name;
+
+        // for building interiors, GetDisplayName() may return internal name;
+        // search parent buildings and use their display name instead
+        foreach (var parentLocation in Game1.locations)
+        {
+            if (parentLocation?.buildings is null)
+                continue;
+
+            foreach (var building in parentLocation.buildings)
+            {
+                if (building?.indoors?.Value == location)
+                    return GetBuildingDisplayName(building);
+            }
+        }
+
+        return location.Name;
+    }
+
+    /// <summary>Get the localized display name for a building.</summary>
+    public static string GetBuildingDisplayName(StardewValley.Buildings.Building building)
+    {
+        if (building.GetData() is BuildingData data && !string.IsNullOrEmpty(data.Name))
+        {
+            string parsed = TokenParser.ParseText(data.Name);
+            if (!string.IsNullOrEmpty(parsed))
+                return parsed;
+        }
+
+        string buildingType = building.buildingType.Value;
+        if (!string.IsNullOrEmpty(buildingType))
+        {
+            string localized = Game1.content.LoadStringReturnNullIfNotFound(
+                $"Strings/Buildings:{buildingType}_name"
+            );
+            if (!string.IsNullOrEmpty(localized))
+                return localized;
+        }
+
+        return buildingType;
+    }
 
     public static int GetNumberOfReadyMachinesExcludingBuildings(this GameLocation location)
     {

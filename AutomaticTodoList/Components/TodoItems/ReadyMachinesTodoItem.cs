@@ -1,8 +1,6 @@
 using AutomaticTodoList.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.GameData.Buildings;
-using StardewValley.TokenizableStrings;
 
 namespace AutomaticTodoList.Components.TodoItems;
 
@@ -74,44 +72,14 @@ internal class ReadyMachinesTodoItem(string groupName, bool isChecked = false)
             if (location is null)
                 return true;
 
-            string displayName = location.DisplayName ?? location.Name;
+            string displayName = location.GetLocationDisplayName();
             if (string.Equals(displayName, groupName, StringComparison.OrdinalIgnoreCase))
             {
                 count += location.GetNumberOfReadyMachinesExcludingBuildings();
             }
 
-            foreach (var building in location.buildings)
-            {
-                if (building?.indoors?.Value is GameLocation interior)
-                {
-                    string buildingName = GetBuildingDisplayName(building);
-                    if (string.Equals(buildingName, groupName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        count += interior.GetNumberOfReadyMachinesExcludingBuildings();
-                    }
-                }
-            }
-
             return true;
         });
         return count;
-    }
-
-    internal static string GetBuildingDisplayName(StardewValley.Buildings.Building building)
-    {
-        if (building.GetData() is BuildingData data && !string.IsNullOrEmpty(data.Name))
-            return TokenParser.ParseText(data.Name);
-
-        string buildingType = building.buildingType.Value;
-        if (!string.IsNullOrEmpty(buildingType))
-        {
-            string localized = Game1.content.LoadStringReturnNullIfNotFound(
-                $"Strings/Buildings:{buildingType}_name"
-            );
-            if (!string.IsNullOrEmpty(localized))
-                return localized;
-        }
-
-        return buildingType;
     }
 }

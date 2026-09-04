@@ -4,9 +4,6 @@ using StardewValley;
 
 namespace AutomaticTodoList.Components.TodoItems;
 
-/// <summary>A ToolPickupTodoItem todo item.</summary>
-/// <remarks>Initializes a new instance of the <see cref="ToolPickupTodoItem"/> class.</remarks>
-/// <param name="text">The text of the todo item.</param>
 internal class ToolPickupTodoItem(Tool tool, bool isChecked = false)
     : BaseTodoItem(isChecked, TaskPriority.ToolPickup)
 {
@@ -19,12 +16,9 @@ internal class ToolPickupTodoItem(Tool tool, bool isChecked = false)
 
     public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
-        if (!IsChecked)
+        if (!IsChecked && Game1.player.toolBeingUpgraded.Value is null)
         {
-            if (Game1.player.toolBeingUpgraded.Value is null)
-            {
-                this.MarkCompleted();
-            }
+            this.MarkCompleted();
         }
     }
 

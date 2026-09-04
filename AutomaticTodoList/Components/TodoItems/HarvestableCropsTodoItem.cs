@@ -17,7 +17,7 @@ internal class HarvestableCropsTodoItem(GameLocation location, bool isChecked = 
     public override string Text()
     {
         return I18n.Items_HarvestableCrops_Text(
-            this.Location.DisplayName ?? this.Location.Name,
+            this.Location.GetLocationDisplayName(),
             this.RemainingHarvestCount
         );
     }

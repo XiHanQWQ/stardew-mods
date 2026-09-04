@@ -53,6 +53,9 @@ public sealed class ModConfig
 
     public string GiftingNPCsString { get; set; } = "";
 
+    /// <summary>Whether to preserve completed (checked) items when the panel is hidden, and show them again when the panel is reopened.</summary>
+    public bool PreserveCompletedItems { get; set; } = false;
+
     /// <summary>The opacity of the panel background, 0&nbsp;=&nbsp;fully transparent, 1&nbsp;=&nbsp;fully opaque.</summary>
     public float PanelOpacity { get; set; } = 1f;
 

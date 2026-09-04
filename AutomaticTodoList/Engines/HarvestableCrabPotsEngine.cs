@@ -28,7 +28,7 @@ internal class HarvestableCrabPotsEngine(
 
             if (count > 0)
             {
-                string displayName = gameLocation.DisplayName ?? gameLocation.Name;
+                string displayName = gameLocation.IsGreenhouse ? gameLocation.Name : (gameLocation.DisplayName ?? gameLocation.Name);
                 crabPotGroups.TryGetValue(displayName, out int existing);
                 crabPotGroups[displayName] = existing + count;
             }
