@@ -13,7 +13,6 @@ public enum TaskPriority
     QueenOfSauce,
     SpecialOrders,
     BulletinBoard,
-    Test,
     Default,
     // low
 }

@@ -1,34 +1,39 @@
-using System.ComponentModel;
 using StardewValley;
 using StardewValley.SpecialOrders;
 
 namespace AutomaticTodoList.Models;
 
-public enum SpecialOrderType
+/// <summary>Helper methods for special order types using vanilla string constants.</summary>
+internal static class SpecialOrderTypes
 {
-    Standard,
-    Qi,
-}
+    /// <summary>Standard special orders (empty string type).</summary>
+    public const string Standard = "";
 
-public static class SpecialOrderTypeExtensions
-{
-    public static string ToStardewSpecialOrderTypeString(this SpecialOrderType type)
+    /// <summary>Qi special orders.</summary>
+    public const string Qi = "Qi";
+
+    /// <summary>All known order types to check.</summary>
+    public static readonly string[] All = [Standard, Qi];
+
+    /// <summary>Check if a special order board type is unlocked for the player.</summary>
+    public static bool IsBoardUnlocked(string orderType)
     {
-        return type switch
+        return orderType switch
         {
-            SpecialOrderType.Standard => "",
-            SpecialOrderType.Qi => "Qi",
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            Standard => SpecialOrder.IsSpecialOrdersBoardUnlocked(),
+            Qi => Math.Max(0, Game1.netWorldState.Value.GoldenWalnutsFound - 1) >= 100,
+            _ => false
         };
     }
 
-    public static bool IsBoardUnlocked(this SpecialOrderType type)
+    /// <summary>Get the display text key for a special order type.</summary>
+    public static string GetTextKey(string orderType)
     {
-        return type switch
+        return orderType switch
         {
-            SpecialOrderType.Standard => SpecialOrder.IsSpecialOrdersBoardUnlocked(),
-            SpecialOrderType.Qi => Math.Max(0, Game1.netWorldState.Value.GoldenWalnutsFound - 1) >= 100,
-            _ => throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(SpecialOrderType)),
+            Standard => "Standard",
+            Qi => "Qi",
+            _ => orderType
         };
     }
 }

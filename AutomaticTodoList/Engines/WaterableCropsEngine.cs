@@ -7,36 +7,22 @@ namespace AutomaticTodoList.Engines;
 internal class WaterableCropsEngine(
     Action<string, StardewModdingAPI.LogLevel> log,
     Func<bool> isEnabled
-) : BaseEngine<WaterableCropsTodoItem>(log, isEnabled, Frequency.EveryTick)
+) : BaseEngine<WaterableCropsTodoItem>(log, isEnabled, Frequency.EverySecond)
 {
-    private IEnumerator<GameLocation>? locations = null;
-
-    public override void Reset()
-    {
-        base.Reset();
-
-        // restart the location scan from the beginning the next time UpdateItems is called
-        locations = null;
-    }
-
     public override void UpdateItems()
     {
-        locations ??= GameHelper.LocationsEnumerator();
-
-        // only try to check one location each update, for performance reasons
-        if (!locations.MoveNext() || locations.Current is null)
+        Utility.ForEachLocation(gameLocation =>
         {
-            // try again next time!
-            locations = null;
-            return;
-        }
+            if (gameLocation is null)
+                return true;
 
-        GameLocation thisLocation = locations.Current;
+            int waterableCount = gameLocation.GetTotalUnwateredCropsExcludingGinger();
+            if (waterableCount > 0)
+            {
+                items.Add(new WaterableCropsTodoItem(gameLocation));
+            }
 
-        int waterableCount = thisLocation.GetTotalUnwateredCropsExcludingGinger();
-        if (waterableCount > 0)
-        {
-            items.Add(new WaterableCropsTodoItem(thisLocation));
-        }
+            return true;
+        });
     }
 }

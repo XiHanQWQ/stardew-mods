@@ -4,6 +4,7 @@ using AutomaticTodoList.Models;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
+using System.Collections.Generic;
 
 namespace AutomaticTodoList;
 
@@ -23,6 +24,11 @@ internal sealed class AutomaticTodoListManager
 
     /// <summary>Preserved checked items from when the panel was last hidden.</summary>
     private List<ITodoItem> preservedCheckedItems = [];
+
+    // Cached collections for GatherItems to avoid allocations on every frame
+    private readonly List<ITodoItem> cachedAllItems = [];
+    private readonly HashSet<string> cachedTextSet = new(StringComparer.Ordinal);
+    private readonly List<ITodoItem> cachedMergedItems = [];
 
     /// <summary>Initializes a new instance of the <see cref="AutomaticTodoListManager"/> class.</summary>
     public AutomaticTodoListManager(ModConfig config, Action saveConfig, Action<string, StardewModdingAPI.LogLevel> log)
@@ -191,39 +197,55 @@ internal sealed class AutomaticTodoListManager
 
     private ICollection<ITodoItem> GatherItems()
     {
-        var allItems = this.engines.Aggregate(new List<ITodoItem>(), (accumulatedItems, engine) =>
+        // Clear and reuse cached collections to avoid allocations
+        cachedAllItems.Clear();
+        foreach (IEngine engine in this.engines)
         {
             if (engine.IsEnabled())
             {
-                accumulatedItems.AddRange(engine.Items());
+                cachedAllItems.AddRange(engine.Items());
             }
-            return accumulatedItems;
-        });
+        }
 
         // merge preserved checked items: replace matching unchecked items, or add new ones
         if (this.Config.PreserveCompletedItems && this.preservedCheckedItems.Count > 0)
         {
-            var newTextSet = new HashSet<string>(allItems.Select(i => i.Text()));
-            var mergedItems = new List<ITodoItem>(allItems.Count + this.preservedCheckedItems.Count);
-
-            foreach (var item in allItems)
+            cachedTextSet.Clear();
+            foreach (ITodoItem item in cachedAllItems)
             {
-                var preserved = this.preservedCheckedItems.FirstOrDefault(p => p.Text() == item.Text());
-                mergedItems.Add(preserved ?? item);
+                cachedTextSet.Add(item.Text());
             }
 
-            foreach (var preserved in this.preservedCheckedItems)
+            cachedMergedItems.Clear();
+            cachedMergedItems.Capacity = cachedAllItems.Count + this.preservedCheckedItems.Count;
+
+            foreach (ITodoItem item in cachedAllItems)
             {
-                if (!newTextSet.Contains(preserved.Text()))
+                ITodoItem? preserved = null;
+                foreach (ITodoItem p in this.preservedCheckedItems)
                 {
-                    mergedItems.Add(preserved);
+                    if (p.Text() == item.Text())
+                    {
+                        preserved = p;
+                        break;
+                    }
+                }
+                cachedMergedItems.Add(preserved ?? item);
+            }
+
+            foreach (ITodoItem preserved in this.preservedCheckedItems)
+            {
+                if (!cachedTextSet.Contains(preserved.Text()))
+                {
+                    cachedMergedItems.Add(preserved);
                 }
             }
 
-            allItems = mergedItems;
+            cachedAllItems.Clear();
+            cachedAllItems.AddRange(cachedMergedItems);
         }
 
-        allItems.Sort((a, b) =>
+        cachedAllItems.Sort((a, b) =>
         {
             int checkedComp = a.IsChecked.CompareTo(b.IsChecked);
             if (checkedComp != 0)
@@ -240,7 +262,7 @@ internal sealed class AutomaticTodoListManager
             return a.Text().CompareTo(b.Text());
         });
 
-        return allItems;
+        return cachedAllItems;
     }
 
     public void InitEngines(bool forceReset = false)
@@ -265,7 +287,6 @@ internal sealed class AutomaticTodoListManager
         this.engines.Add(new ReadyMachinesEngine(Log, () => this.Config.CheckReadyMachines));
         this.engines.Add(new HarvestableCrabPotsEngine(Log, () => this.Config.CheckHarvestableCrabPots));
         this.engines.Add(new SpecialOrdersBoardEngine(Log, () => this.Config.CheckSpecialOrdersBoard));
-        this.engines.Add(new TestEngine(Log, () => false));
         this.engines.Add(new ToolPickupEngine(Log, () => this.Config.CheckToolPickup));
         this.engines.Add(new TravelingMerchantEngine(Log, () => this.Config.CheckTravelingMerchant));
         this.engines.Add(new WaterableCropsEngine(Log, () => this.Config.CheckWaterableCrops));

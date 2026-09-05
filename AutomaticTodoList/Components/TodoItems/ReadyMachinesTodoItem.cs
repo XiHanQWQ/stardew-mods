@@ -4,12 +4,13 @@ using StardewValley;
 
 namespace AutomaticTodoList.Components.TodoItems;
 
-internal class ReadyMachinesTodoItem(string groupName, bool isChecked = false)
+internal class ReadyMachinesTodoItem(string groupName, int initialCount = 0, bool isChecked = false)
     : BaseTodoItem(isChecked, TaskPriority.ReadyMachines)
 {
     public string GroupName { get; } = groupName;
 
-    private int ReadyMachinesCount { get; set; } = CountMachinesForGroup(groupName);
+    /// <summary>The current count of ready machines in this group. Updated by the engine.</summary>
+    public int ReadyMachinesCount { get; set; } = initialCount;
 
     public override string Text()
     {
@@ -21,35 +22,17 @@ internal class ReadyMachinesTodoItem(string groupName, bool isChecked = false)
 
     public override void OnTimeChanged(TimeChangedEventArgs e)
     {
-        if (IsChecked)
+        if (IsChecked && this.ReadyMachinesCount > 0)
         {
-            var machineCount = CountMachinesForGroup(this.GroupName);
-            if (machineCount != this.ReadyMachinesCount)
-            {
-                this.ReadyMachinesCount = machineCount;
-
-                if (this.ReadyMachinesCount > 0)
-                {
-                    this.MarkUncompleted();
-                }
-            }
+            this.MarkUncompleted();
         }
     }
 
     public override void OnOneSecondUpdateTicked(OneSecondUpdateTickedEventArgs e)
     {
-        if (!IsChecked)
+        if (!IsChecked && this.ReadyMachinesCount == 0)
         {
-            var machineCount = CountMachinesForGroup(this.GroupName);
-            if (machineCount != this.ReadyMachinesCount)
-            {
-                this.ReadyMachinesCount = machineCount;
-
-                if (this.ReadyMachinesCount == 0)
-                {
-                    this.MarkCompleted();
-                }
-            }
+            this.MarkCompleted();
         }
     }
 
@@ -62,24 +45,5 @@ internal class ReadyMachinesTodoItem(string groupName, bool isChecked = false)
     public override int GetHashCode()
     {
         return (this.GetType(), this.GroupName.ToLowerInvariant()).GetHashCode();
-    }
-
-    internal static int CountMachinesForGroup(string groupName)
-    {
-        int count = 0;
-        Utility.ForEachLocation(location =>
-        {
-            if (location is null)
-                return true;
-
-            string displayName = location.GetLocationDisplayName();
-            if (string.Equals(displayName, groupName, StringComparison.OrdinalIgnoreCase))
-            {
-                count += location.GetNumberOfReadyMachinesExcludingBuildings();
-            }
-
-            return true;
-        });
-        return count;
     }
 }

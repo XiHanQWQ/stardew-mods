@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using AutomaticTodoList.Components.TodoItems;
 using AutomaticTodoList.Models;
 using StardewValley;
@@ -13,27 +12,22 @@ internal class SpecialOrdersBoardEngine(
 {
     public override void UpdateItems()
     {
-        SpecialOrderType[] typesToCheck = [
-            SpecialOrderType.Standard,
-            SpecialOrderType.Qi
-        ];
-
-        foreach (SpecialOrderType type in typesToCheck)
+        foreach (string orderType in SpecialOrderTypes.All)
         {
-            if (!type.IsBoardUnlocked())
+            if (!SpecialOrderTypes.IsBoardUnlocked(orderType))
             {
                 continue;
             }
 
-            SpecialOrder leftOrder = Game1.player.team.GetAvailableSpecialOrder(0, type.ToStardewSpecialOrderTypeString());
-            SpecialOrder rightOrder = Game1.player.team.GetAvailableSpecialOrder(1, type.ToStardewSpecialOrderTypeString());
+            SpecialOrder leftOrder = Game1.player.team.GetAvailableSpecialOrder(0, orderType);
+            SpecialOrder rightOrder = Game1.player.team.GetAvailableSpecialOrder(1, orderType);
 
             bool anyOrderIsAvailable = leftOrder is not null || rightOrder is not null;
-            bool alreadyAcceptedOrder = Game1.player.team.acceptedSpecialOrderTypes.Contains(type.ToStardewSpecialOrderTypeString());
+            bool alreadyAcceptedOrder = Game1.player.team.acceptedSpecialOrderTypes.Contains(orderType);
 
             if (anyOrderIsAvailable && !alreadyAcceptedOrder)
             {
-                items.Add(new SpecialOrdersBoardTodoItem(type));
+                items.Add(new SpecialOrdersBoardTodoItem(orderType));
             }
         }
     }

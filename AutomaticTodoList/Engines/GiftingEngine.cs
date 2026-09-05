@@ -1,6 +1,7 @@
 using AutomaticTodoList.Components.TodoItems;
 using AutomaticTodoList.Models;
 using StardewValley;
+using System.Collections.Generic;
 
 namespace AutomaticTodoList.Engines;
 
@@ -10,6 +11,8 @@ internal class GiftingEngine(
     Func<string> enabledNPCsString
 ) : BaseEngine<GiftingTodoItem>(log, isEnabled, Frequency.OnceADay)
 {
+    private List<string>? cachedEnabledNPCs = null;
+    private string? lastEnabledNPCsString = null;
 
     public override IEnumerable<ITodoItem> Items()
     {
@@ -18,6 +21,14 @@ internal class GiftingEngine(
 
     public override void UpdateItems()
     {
+        // Update cache if the config string changed
+        string currentString = enabledNPCsString();
+        if (currentString != lastEnabledNPCsString)
+        {
+            lastEnabledNPCsString = currentString;
+            cachedEnabledNPCs = ParseEnabledNPCs(currentString);
+        }
+
         // check if we still need to give gifts out for NPCs
         Utility.ForEachCharacter((npc) =>
         {
@@ -32,10 +43,26 @@ internal class GiftingEngine(
         });
     }
 
+    private List<string> ParseEnabledNPCs(string npcString)
+    {
+        var result = new List<string>();
+        if (string.IsNullOrWhiteSpace(npcString))
+            return result;
+
+        foreach (var part in npcString.Split(','))
+        {
+            string trimmed = part.Trim().ToLower();
+            if (!string.IsNullOrEmpty(trimmed))
+                result.Add(trimmed);
+        }
+        return result;
+    }
+
     private bool IsEnabledForNPC(string npcName)
     {
-        bool all = enabledNPCsString().Trim() == "";
+        if (cachedEnabledNPCs == null || cachedEnabledNPCs.Count == 0)
+            return true; // empty list means all NPCs enabled
 
-        return all || enabledNPCsString().Split(',').Select(s => s.Trim().ToLower()).Contains(npcName.ToLower());
+        return cachedEnabledNPCs.Contains(npcName.ToLower());
     }
 }

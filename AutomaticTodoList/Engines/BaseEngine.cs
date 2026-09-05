@@ -14,7 +14,7 @@ internal abstract class BaseEngine<T>(
 
     public virtual bool IsEnabled() => isEnabled();
 
-    public virtual IEnumerable<ITodoItem> Items() => (IEnumerable<ITodoItem>)items;
+    public virtual IEnumerable<ITodoItem> Items() => (IEnumerable<ITodoItem>)(object)items;
 
     public abstract void UpdateItems();
 

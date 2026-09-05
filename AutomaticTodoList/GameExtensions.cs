@@ -5,6 +5,8 @@ using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using StardewValley.TokenizableStrings;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace AutomaticTodoList;
 
@@ -12,28 +14,55 @@ internal static class GameExtensions
 {
     internal static ModConfig? Config { get; set; }
 
+    // Cache for location display names to avoid repeated building searches
+    private static readonly ConditionalWeakTable<GameLocation, string> LocationDisplayNameCache = new();
+
+    // Map of passive festival IDs to their valid location type names.
+    // Using type names instead of exact types allows for custom locations that inherit from these.
+    private static readonly Dictionary<string, HashSet<string>> PassiveFestivalLocationTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["NightMarket"] = new HashSet<string> { nameof(BeachNightMarket) },
+        ["DesertFestival"] = new HashSet<string> { nameof(DesertFestival) },
+        ["TroutDerby"] = new HashSet<string> { nameof(Forest) },
+        ["SquidFest"] = new HashSet<string> { nameof(Beach) },
+    };
+
     /// <summary>Get the localized display name for any location, including building interiors.</summary>
     public static string GetLocationDisplayName(this GameLocation location)
     {
+        if (LocationDisplayNameCache.TryGetValue(location, out string? cachedName))
+            return cachedName;
+
         string? name = location.GetDisplayName();
+        string result;
+
         if (!string.IsNullOrEmpty(name) && name != location.Name)
-            return name;
-
-        // for building interiors, GetDisplayName() may return internal name;
-        // search parent buildings and use their display name instead
-        foreach (var parentLocation in Game1.locations)
         {
-            if (parentLocation?.buildings is null)
-                continue;
-
-            foreach (var building in parentLocation.buildings)
+            result = name;
+        }
+        else
+        {
+            // for building interiors, GetDisplayName() may return internal name;
+            // search parent buildings and use their display name instead
+            result = location.Name;
+            foreach (var parentLocation in Game1.locations)
             {
-                if (building?.indoors?.Value == location)
-                    return GetBuildingDisplayName(building);
+                if (parentLocation?.buildings is null)
+                    continue;
+
+                foreach (var building in parentLocation.buildings)
+                {
+                    if (building?.indoors?.Value == location)
+                    {
+                        result = GetBuildingDisplayName(building);
+                        break;
+                    }
+                }
             }
         }
 
-        return location.Name;
+        LocationDisplayNameCache.Add(location, result);
+        return result;
     }
 
     /// <summary>Get the localized display name for a building.</summary>
@@ -136,13 +165,13 @@ internal static class GameExtensions
 
     public static bool IsInPassiveFestivalLocation(this Character character, string festivalID)
     {
-        return festivalID switch
-        {
-            "NightMarket" => character.currentLocation is BeachNightMarket,
-            "DesertFestival" => character.currentLocation is DesertFestival,
-            "TroutDerby" => character.currentLocation is Forest,
-            "SquidFest" => character.currentLocation is Beach,
-            _ => false
-        };
+        if (character.currentLocation is null)
+            return false;
+
+        if (!PassiveFestivalLocationTypes.TryGetValue(festivalID, out var validTypes))
+            return false;
+
+        string locationTypeName = character.currentLocation.GetType().Name;
+        return validTypes.Contains(locationTypeName);
     }
 }

@@ -4,6 +4,7 @@ using StardewValley;
 using StardewValley.Menus;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace AutomaticTodoList.Components.UI;
 
@@ -49,6 +50,10 @@ internal class AutomaticTodoListPanel(
 
     /// <summary>The on-screen bounds of the panel, used to check whether the cursor is over it.</summary>
     private Rectangle panelBounds;
+
+    // Cached collections to avoid allocations per frame
+    private readonly List<ITodoItem> cachedRenderedItems = [];
+    private readonly List<ITodoItem> cachedAllItems = [];
 
     /// <summary>Scroll the list up or down by one item when the mouse wheel is used over the panel.</summary>
     public void HandleMouseWheel(int delta)
@@ -114,19 +119,28 @@ internal class AutomaticTodoListPanel(
         var allItems = getItems();
         int capacity = visibleItemCount();
 
-        int maxScroll = Math.Max(0, allItems.Count - capacity);
+        // Cache all items to avoid re-enumeration
+        cachedAllItems.Clear();
+        cachedAllItems.AddRange(allItems);
+
+        int maxScroll = Math.Max(0, cachedAllItems.Count - capacity);
         if (scrollIndex > maxScroll)
         {
             scrollIndex = maxScroll;
         }
 
-        var renderedItems = allItems.Skip(scrollIndex).Take(capacity).ToList();
+        // Use cached list instead of LINQ ToList() allocation
+        cachedRenderedItems.Clear();
+        for (int i = scrollIndex; i < cachedAllItems.Count && i < scrollIndex + capacity; i++)
+        {
+            cachedRenderedItems.Add(cachedAllItems[i]);
+        }
         bool showScrollbar = maxScroll > 0;
-        bool showOverflowIndicator = allItems.Count > scrollIndex + capacity;
+        bool showOverflowIndicator = cachedAllItems.Count > scrollIndex + capacity;
 
         // find the longest text, which determines the width of the panel
         int maxTextWidth = (int)Font.MeasureString(TitleText).X;
-        foreach (ITodoItem item in renderedItems)
+        foreach (ITodoItem item in cachedRenderedItems)
         {
             int todoItemWidth = (int)Font.MeasureString(item.Text()).X;
             if (todoItemWidth > maxTextWidth)
@@ -137,7 +151,7 @@ internal class AutomaticTodoListPanel(
 
         int numRows =
             1 + // the title row
-            renderedItems.Count + // the todo items
+            cachedRenderedItems.Count + // the todo items
             (showOverflowIndicator ? 1 : 0); // the overflow indicator
 
         // leave room for the scrollbar on the right when it is shown
@@ -160,18 +174,18 @@ internal class AutomaticTodoListPanel(
         DrawTitleTextAndDividingLine(b, titlePosition, maxTextWidth, out Vector2 todoItemPosition);
 
         // draw the todo items
-        DrawTodoItems(b, todoItemPosition, renderedItems, out Vector2 overflowIndicatorPosition);
+        DrawTodoItems(b, todoItemPosition, cachedRenderedItems, out Vector2 overflowIndicatorPosition);
 
         // draw the overflow indicator
         if (showOverflowIndicator)
         {
-            DrawOverflowIndicator(b, overflowIndicatorPosition, allItems.Count - scrollIndex - capacity, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity(), getLargeFont());
+            DrawOverflowIndicator(b, overflowIndicatorPosition, cachedAllItems.Count - scrollIndex - capacity, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity(), getLargeFont());
         }
 
         // draw the scrollbar
         if (showScrollbar)
         {
-            DrawScrollbar(b, titlePosition, contentWidth, numRows, capacity, allItems.Count);
+            DrawScrollbar(b, titlePosition, contentWidth, numRows, capacity, cachedAllItems.Count);
         }
     }
 
@@ -252,7 +266,7 @@ internal class AutomaticTodoListPanel(
     {
         Vector2 currentPosition = position;
 
-        foreach (ITodoItem item in items.Take(visibleItemCount()))
+        foreach (ITodoItem item in items)
         {
             TodoItemTextRow itemRow = new(item, currentPosition, getUseWhiteText(), getDrawShadow(), getDrawUnderline(), getTextOpacity(), getLargeFont());
             itemRow.Draw(b);
