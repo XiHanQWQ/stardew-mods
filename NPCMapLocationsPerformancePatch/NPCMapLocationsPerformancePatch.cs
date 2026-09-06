@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -13,16 +12,14 @@ namespace NPCMapLocationsPerformancePatch
     {
         // Track which clients have requested sync (playerID -> request count)
         private static readonly Dictionary<long, int> SyncRequests = new();
-        private static int TotalRequests => SyncRequests.Values.Sum();
+        private static int totalRequests = 0; // Cached total, avoids LINQ Sum() every frame
 
         /// <summary>Prefix for UpdateTicked - only runs if host has pending sync requests or local player has map open.</summary>
         public static bool UpdatePrefix()
         {
             // Host: run update if any client requested sync OR if host has map open
             if (Context.IsMainPlayer)
-            {
-                return TotalRequests > 0 || ModEntry.GetIsMapOpen();
-            }
+                return totalRequests > 0 || ModEntry.GetIsMapOpen();
 
             // Farmhand (client): only run update if local map is open
             return ModEntry.GetIsMapOpen();
@@ -31,22 +28,19 @@ namespace NPCMapLocationsPerformancePatch
         /// <summary>Called by host when a client requests NPC sync.</summary>
         public static void OnClientRequestSync(long clientId)
         {
-            if (!Context.IsMainPlayer)
-                return;
+            if (!Context.IsMainPlayer) return;
 
-            if (SyncRequests.TryGetValue(clientId, out int count))
-                SyncRequests[clientId] = count + 1;
-            else
-                SyncRequests[clientId] = 1;
+            int newCount = SyncRequests.TryGetValue(clientId, out int count) ? count + 1 : 1;
+            SyncRequests[clientId] = newCount;
+            totalRequests++;
 
-            ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} requested NPC sync (total requests: {TotalRequests})", LogLevel.Debug);
+            ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} requested NPC sync (total: {totalRequests})", LogLevel.Debug);
         }
 
         /// <summary>Called by host when a client stops requesting NPC sync.</summary>
         public static void OnClientStopSync(long clientId)
         {
-            if (!Context.IsMainPlayer)
-                return;
+            if (!Context.IsMainPlayer) return;
 
             if (SyncRequests.TryGetValue(clientId, out int count))
             {
@@ -55,21 +49,22 @@ namespace NPCMapLocationsPerformancePatch
                 else
                     SyncRequests[clientId] = count - 1;
 
-                ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} stopped NPC sync (total requests: {TotalRequests})", LogLevel.Debug);
+                totalRequests = Math.Max(0, totalRequests - 1);
+                ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} stopped NPC sync (total: {totalRequests})", LogLevel.Debug);
             }
         }
 
         /// <summary>Postfix injected into host's OnModMessageReceived to handle RequestSync/StopSync messages.</summary>
-        public static void OnModMessageReceivedPostfix(object __instance, StardewModdingAPI.Events.ModMessageReceivedEventArgs e)
+        public static void OnModMessageReceivedPostfix(object __instance, ModMessageReceivedEventArgs e)
         {
-            if (!Context.IsMainPlayer)
-                return;
+            if (!Context.IsMainPlayer) return;
 
-            const string RequestSyncId = "NPCMapLocationsPatch.RequestSync";
-            const string StopSyncId = "NPCMapLocationsPatch.StopSync";
+            // FromModID is the sender's Mod UniqueID, not the message type
+            const string ExpectedModId = "XiHanQWQ.NPCMapLocationsPerformancePatch";
+            if (e.FromModID != ExpectedModId) return;
 
-            if (e.FromModID != "NPCMapLocationsPatch") // Our patch mod's ID
-                return;
+            const string RequestSyncId = "NPCMapLocationsPerformancePatch.RequestSync";
+            const string StopSyncId = "NPCMapLocationsPerformancePatch.StopSync";
 
             switch (e.Type)
             {
@@ -83,6 +78,6 @@ namespace NPCMapLocationsPerformancePatch
         }
 
         /// <summary>Get current request count for debugging.</summary>
-        public static int GetRequestCount() => TotalRequests;
+        public static int GetRequestCount() => totalRequests;
     }
 }

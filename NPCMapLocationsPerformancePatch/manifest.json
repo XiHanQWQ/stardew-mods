@@ -1,7 +1,7 @@
 {
   "Name": "NPC Map Locations Performance Patch",
   "Author": "XiHanQWQ",
-  "Version": "1.2.0",
+  "Version": "1.2.1",
   "Description": "Optimizes NPC Map Locations with on-demand sync: clients request NPC position updates only when opening the map; host computes and broadcasts only when requested. Dramatically reduces CPU usage when map is closed.",
   "UniqueID": "XiHanQWQ.NPCMapLocationsPerformancePatch",
   "EntryDll": "NPCMapLocationsPerformancePatch.dll",
