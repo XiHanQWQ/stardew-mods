@@ -1,0 +1,16 @@
+{
+  "Name": "NPC Map Locations Performance Patch",
+  "Author": "XiHanQWQ",
+  "Version": "1.2.0",
+  "Description": "Optimizes NPC Map Locations with on-demand sync: clients request NPC position updates only when opening the map; host computes and broadcasts only when requested. Dramatically reduces CPU usage when map is closed.",
+  "UniqueID": "XiHanQWQ.NPCMapLocationsPerformancePatch",
+  "EntryDll": "NPCMapLocationsPerformancePatch.dll",
+  "MinimumApiVersion": "3.0.0",
+  "UpdateKeys": ["Nexus:51830"],
+  "Dependencies": [
+    {
+      "UniqueID": "Bouhm.NPCMapLocations",
+      "IsRequired": true
+    }
+  ]
+}
