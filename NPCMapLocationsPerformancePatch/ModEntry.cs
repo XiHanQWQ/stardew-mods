@@ -11,7 +11,8 @@ namespace NPCMapLocationsPerformancePatch
     public class ModEntry : Mod
     {
         public static IMonitor? ModMonitor;
-        private static bool IsMapOpen;
+        public static bool IsMapOpen { get; private set; } // Made static with private setter
+
         private static long? CachedHostId;
         private static Assembly? NpcAssembly;
 
@@ -31,7 +32,6 @@ namespace NPCMapLocationsPerformancePatch
                 if (NpcAssembly != null)
                 {
                     PatchUpdateTicked(harmony);
-                    // Don't patch NPCMapLocations.OnModMessageReceived - we handle it directly
                 }
                 Monitor.Log("NPC Map Locations Performance Patch loaded!", LogLevel.Info);
             }
@@ -53,21 +53,28 @@ namespace NPCMapLocationsPerformancePatch
             try
             {
                 foreach (var peer in Helper.Multiplayer.GetConnectedPlayers())
+                {
                     if (peer.IsHost)
                     {
                         CachedHostId = peer.PlayerID;
                         Monitor.Log($"Host ID initialized: {peer.PlayerID}", LogLevel.Debug);
                         break;
                     }
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Monitor.Log($"Failed to initialize host ID: {ex.Message}", LogLevel.Warn);
+            }
         }
 
         private Assembly? FindNpcAssembly()
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
                 if (asm.GetName().Name == "NPCMapLocations")
                     return asm;
+            }
             Monitor.Log("NPCMapLocations assembly not found!", LogLevel.Error);
             return null;
         }
@@ -83,11 +90,13 @@ namespace NPCMapLocationsPerformancePatch
 
             var method = type.GetMethod("OnUpdateTicked", BindingFlags.Instance | BindingFlags.NonPublic);
             if (method == null)
+            {
                 foreach (var name in new[] { "GameLoop_UpdateTicked", "UpdateTicked" })
                 {
                     method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                     if (method != null) break;
                 }
+            }
 
             if (method != null)
             {
@@ -96,30 +105,43 @@ namespace NPCMapLocationsPerformancePatch
                 Monitor.Log($"Patched: {type.Name}.{method.Name}", LogLevel.Debug);
             }
             else
+            {
                 Monitor.Log("Could not find UpdateTicked method to patch", LogLevel.Warn);
+            }
         }
 
-        private void OnPeerConnected(object? _, PeerConnectedEventArgs e)
+        private void OnPeerConnected(object? sender, PeerConnectedEventArgs e)
         {
             if (e.Peer.IsHost)
             {
                 CachedHostId = e.Peer.PlayerID;
                 Monitor.Log($"Host connected: {e.Peer.PlayerID}", LogLevel.Debug);
             }
+
+            // If we are the host, clean up any leftover requests for this client (shouldn't happen)
+            if (Context.IsMainPlayer)
+            {
+                NPCMapLocationsPatch.OnClientDisconnected(e.Peer.PlayerID);
+            }
         }
 
-        private void OnPeerDisconnected(object? _, PeerDisconnectedEventArgs e)
+        private void OnPeerDisconnected(object? sender, PeerDisconnectedEventArgs e)
         {
             if (e.Peer.IsHost)
             {
                 CachedHostId = null;
                 Monitor.Log("Host disconnected", LogLevel.Debug);
             }
+
+            // If we are the host, remove this client's sync requests
+            if (Context.IsMainPlayer)
+            {
+                NPCMapLocationsPatch.OnClientDisconnected(e.Peer.PlayerID);
+            }
         }
 
-        private void OnModMessageReceived(object? _, ModMessageReceivedEventArgs e)
+        private void OnModMessageReceived(object? sender, ModMessageReceivedEventArgs e)
         {
-            // FromModID is sender's Mod UniqueID
             if (e.FromModID != ModManifest.UniqueID || !Context.IsMainPlayer) return;
 
             string name = "Unknown";
@@ -139,7 +161,7 @@ namespace NPCMapLocationsPerformancePatch
             }
         }
 
-        private void OnMenuChanged(object? _, MenuChangedEventArgs e)
+        private void OnMenuChanged(object? sender, MenuChangedEventArgs e)
         {
             var menu = e.NewMenu;
 
@@ -149,9 +171,14 @@ namespace NPCMapLocationsPerformancePatch
                 {
                     var tabField = menu.GetType().GetField("currentTab", BindingFlags.Instance | BindingFlags.Public);
                     if (tabField?.GetValue(menu) is int tab)
-                        SetMapOpen(tab == 3);
+                    {
+                        SetMapOpen(tab == 3); // 3 = Map tab in vanilla GameMenu
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Monitor.Log($"Failed to inspect GameMenu: {ex.Message}", LogLevel.Debug);
+                }
                 return;
             }
 
@@ -214,17 +241,20 @@ namespace NPCMapLocationsPerformancePatch
             try
             {
                 foreach (var peer in Helper.Multiplayer.GetConnectedPlayers())
+                {
                     if (peer.IsHost)
                     {
                         CachedHostId = peer.PlayerID;
                         return peer.PlayerID;
                     }
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Monitor.Log($"Error getting host ID: {ex.Message}", LogLevel.Warn);
+            }
 
             return -1;
         }
-
-        public static bool GetIsMapOpen() => IsMapOpen;
     }
 }
