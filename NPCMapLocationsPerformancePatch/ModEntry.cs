@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using StardewModdingAPI;
@@ -161,34 +162,33 @@ namespace NPCMapLocationsPerformancePatch
             }
         }
 
+        private static int MapTabIndex => Constants.TargetPlatform == GamePlatform.Android ? 4 : GameMenu.mapTab;
+
         private void OnMenuChanged(object? sender, MenuChangedEventArgs e)
         {
-            var menu = e.NewMenu;
+            SetMapOpen(IsMapMenuOpen(e.NewMenu));
+        }
 
-            if (menu?.GetType().Name == "GameMenu")
+        private bool IsMapMenuOpen(IClickableMenu? menu)
+        {
+            if (menu is GameMenu gm)
             {
+                if (gm.currentTab != MapTabIndex)
+                    return false;
+
                 try
                 {
-                    var tabField = menu.GetType().GetField("currentTab", BindingFlags.Instance | BindingFlags.Public);
-                    if (tabField?.GetValue(menu) is int tab)
-                    {
-                        SetMapOpen(tab == 3); // 3 = Map tab in vanilla GameMenu
-                    }
+                    var pages = Helper.Reflection.GetField<List<IClickableMenu>>(gm, "pages").GetValue();
+                    var page = pages[gm.currentTab];
+                    return page is MapPage || page?.GetType().Name == "ModMapPage";
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Monitor.Log($"Failed to inspect GameMenu: {ex.Message}", LogLevel.Debug);
+                    return false;
                 }
-                return;
             }
 
-            string? menuTypeName = menu?.GetType().Name;
-            bool isMapPage = menuTypeName is "MapPage" or "ModMapPage";
-
-            if (isMapPage)
-                SetMapOpen(true);
-            else if (menu == null && IsMapOpen)
-                SetMapOpen(false);
+            return menu is MapPage || menu?.GetType().Name == "ModMapPage";
         }
 
         private void SetMapOpen(bool open)
