@@ -12,25 +12,28 @@ namespace NPCMapLocationsPerformancePatch
     public class ModEntry : Mod
     {
         public static IMonitor? ModMonitor;
-        public static bool IsMapOpen { get; private set; }
+        public static bool IsMapOpen { get; private set; } // Made static with private setter
 
-        // Message IDs, namespaced so they can't collide with other mods
+        private static long? CachedHostId;
+        private static Assembly? NpcAssembly;
+
+        // Message IDs - use actual Mod UniqueID prefix
         private const string MsgPrefix = "NPCMapLocationsPerformancePatch";
         private const string RequestSyncId = MsgPrefix + ".RequestSync";
         private const string StopSyncId = MsgPrefix + ".StopSync";
 
-        // Cached once; avoids re-acquiring the reflection field on every check
-        private static readonly FieldInfo? PagesField = typeof(GameMenu).GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private long? cachedHostId;
-
         public override void Entry(IModHelper helper)
         {
             ModMonitor = Monitor;
+            var harmony = new Harmony(ModManifest.UniqueID);
 
             try
             {
-                PatchNpcMapLocations(new Harmony(ModManifest.UniqueID));
+                NpcAssembly = FindNpcAssembly();
+                if (NpcAssembly != null)
+                {
+                    PatchUpdateTicked(harmony);
+                }
                 Monitor.Log("NPC Map Locations Performance Patch loaded!", LogLevel.Info);
             }
             catch (Exception ex)
@@ -38,57 +41,81 @@ namespace NPCMapLocationsPerformancePatch
                 Monitor.Log($"Init error: {ex}", LogLevel.Error);
             }
 
-            helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
-            helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+            helper.Events.Display.MenuChanged += OnMenuChanged;
             helper.Events.Multiplayer.PeerConnected += OnPeerConnected;
             helper.Events.Multiplayer.PeerDisconnected += OnPeerDisconnected;
             helper.Events.Multiplayer.ModMessageReceived += OnModMessageReceived;
+
+            InitializeHostId();
         }
 
-        /// <summary>Patches NPC Map Locations' per-tick update handler. If the target method can't be found, NML simply keeps its vanilla behavior.</summary>
-        private void PatchNpcMapLocations(Harmony harmony)
+        private void InitializeHostId()
         {
-            var target = AccessTools.TypeByName("NPCMapLocations.ModEntry");
-            if (target == null)
+            try
             {
-                Monitor.Log("NPCMapLocations.ModEntry type not found; patch not applied.", LogLevel.Error);
+                foreach (var peer in Helper.Multiplayer.GetConnectedPlayers())
+                {
+                    if (peer.IsHost)
+                    {
+                        CachedHostId = peer.PlayerID;
+                        Monitor.Log($"Host ID initialized: {peer.PlayerID}", LogLevel.Debug);
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Monitor.Log($"Failed to initialize host ID: {ex.Message}", LogLevel.Warn);
+            }
+        }
+
+        private Assembly? FindNpcAssembly()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (asm.GetName().Name == "NPCMapLocations")
+                    return asm;
+            }
+            Monitor.Log("NPCMapLocations assembly not found!", LogLevel.Error);
+            return null;
+        }
+
+        private void PatchUpdateTicked(Harmony harmony)
+        {
+            var type = NpcAssembly!.GetType("NPCMapLocations.ModEntry");
+            if (type == null)
+            {
+                Monitor.Log("NPCMapLocations.ModEntry type not found", LogLevel.Error);
                 return;
             }
 
-            var method = AccessTools.Method(target, "OnUpdateTicked")
-                ?? AccessTools.Method(target, "GameLoop_UpdateTicked")
-                ?? AccessTools.Method(target, "UpdateTicked");
+            var method = type.GetMethod("OnUpdateTicked", BindingFlags.Instance | BindingFlags.NonPublic);
             if (method == null)
             {
-                Monitor.Log("Could not find UpdateTicked method to patch; patch not applied.", LogLevel.Warn);
-                return;
+                foreach (var name in new[] { "GameLoop_UpdateTicked", "UpdateTicked" })
+                {
+                    method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (method != null) break;
+                }
             }
 
-            harmony.Patch(
-                method,
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(NPCMapLocationsPatch), nameof(NPCMapLocationsPatch.UpdatePrefix)))
-            );
-            Monitor.Log($"Patched {target.Name}.{method.Name}", LogLevel.Debug);
-        }
-
-        /// <summary>Polls the active menu each tick (a few reference checks) instead of listening to MenuChanged, which does not fire when the player switches to the map tab inside an already-open GameMenu.</summary>
-        private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
-        {
-            SetMapOpen(IsMapMenuOpen());
-        }
-
-        private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
-        {
-            IsMapOpen = false;
-            cachedHostId = null;
-            NPCMapLocationsPatch.Reset();
+            if (method != null)
+            {
+                var prefix = typeof(NPCMapLocationsPatch).GetMethod(nameof(NPCMapLocationsPatch.UpdatePrefix));
+                harmony.Patch(method, new HarmonyMethod(prefix));
+                Monitor.Log($"Patched: {type.Name}.{method.Name}", LogLevel.Debug);
+            }
+            else
+            {
+                Monitor.Log("Could not find UpdateTicked method to patch", LogLevel.Warn);
+            }
         }
 
         private void OnPeerConnected(object? sender, PeerConnectedEventArgs e)
         {
             if (e.Peer.IsHost)
             {
-                cachedHostId = e.Peer.PlayerID;
+                CachedHostId = e.Peer.PlayerID;
                 Monitor.Log($"Host connected: {e.Peer.PlayerID}", LogLevel.Debug);
             }
 
@@ -103,7 +130,7 @@ namespace NPCMapLocationsPerformancePatch
         {
             if (e.Peer.IsHost)
             {
-                cachedHostId = null;
+                CachedHostId = null;
                 Monitor.Log("Host disconnected", LogLevel.Debug);
             }
 
@@ -117,16 +144,18 @@ namespace NPCMapLocationsPerformancePatch
         private void OnModMessageReceived(object? sender, ModMessageReceivedEventArgs e)
         {
             if (e.FromModID != ModManifest.UniqueID || !Context.IsMainPlayer) return;
-            if (e.Type != RequestSyncId && e.Type != StopSyncId) return;
 
-            string name = Game1.GetPlayer(e.FromPlayerID)?.Name ?? "Unknown";
+            string name = "Unknown";
+            var farmer = Game1.GetPlayer(e.FromPlayerID);
+            if (farmer != null)
+                name = farmer.Name;
 
             if (e.Type == RequestSyncId)
             {
                 Monitor.Log($"[Host] Received RequestSync from {name} ({e.FromPlayerID})", LogLevel.Debug);
                 NPCMapLocationsPatch.OnClientRequestSync(e.FromPlayerID);
             }
-            else
+            else if (e.Type == StopSyncId)
             {
                 Monitor.Log($"[Host] Received StopSync from {name} ({e.FromPlayerID})", LogLevel.Debug);
                 NPCMapLocationsPatch.OnClientStopSync(e.FromPlayerID);
@@ -135,20 +164,28 @@ namespace NPCMapLocationsPerformancePatch
 
         private static int MapTabIndex => Constants.TargetPlatform == GamePlatform.Android ? 4 : GameMenu.mapTab;
 
-        private static bool IsMapMenuOpen()
+        private void OnMenuChanged(object? sender, MenuChangedEventArgs e)
         {
-            var menu = Game1.activeClickableMenu;
+            SetMapOpen(IsMapMenuOpen(e.NewMenu));
+        }
 
+        private bool IsMapMenuOpen(IClickableMenu? menu)
+        {
             if (menu is GameMenu gm)
             {
                 if (gm.currentTab != MapTabIndex)
                     return false;
 
-                var pages = (List<IClickableMenu>?)PagesField?.GetValue(gm);
-                IClickableMenu? page = pages is { Count: > 0 } && gm.currentTab < pages.Count
-                    ? pages[gm.currentTab]
-                    : null;
-                return page is MapPage || page?.GetType().Name == "ModMapPage";
+                try
+                {
+                    var pages = Helper.Reflection.GetField<List<IClickableMenu>>(gm, "pages").GetValue();
+                    var page = pages[gm.currentTab];
+                    return page is MapPage || page?.GetType().Name == "ModMapPage";
+                }
+                catch
+                {
+                    return false;
+                }
             }
 
             return menu is MapPage || menu?.GetType().Name == "ModMapPage";
@@ -157,24 +194,25 @@ namespace NPCMapLocationsPerformancePatch
         private void SetMapOpen(bool open)
         {
             if (IsMapOpen == open) return;
+            bool wasOpen = IsMapOpen;
             IsMapOpen = open;
 
-            // Farmhands tell the host when they start/stop needing NPC sync
-            if (!Context.IsMultiplayer || Context.IsMainPlayer) return;
-
-            if (open)
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
             {
-                Monitor.Log("[Client] Map opened - sending RequestSync", LogLevel.Debug);
-                SendSyncMessage(RequestSyncId);
-            }
-            else
-            {
-                Monitor.Log("[Client] Map closed - sending StopSync", LogLevel.Debug);
-                SendSyncMessage(StopSyncId);
+                if (open && !wasOpen)
+                {
+                    Monitor.Log("[Client] Map opened - sending RequestSync", LogLevel.Debug);
+                    SendSyncRequest(RequestSyncId);
+                }
+                else if (!open && wasOpen)
+                {
+                    Monitor.Log("[Client] Map closed - sending StopSync", LogLevel.Debug);
+                    SendSyncRequest(StopSyncId);
+                }
             }
         }
 
-        private void SendSyncMessage(string msgType)
+        private void SendSyncRequest(string msgType)
         {
             long hostId = GetHostId();
             if (hostId == -1)
@@ -182,6 +220,10 @@ namespace NPCMapLocationsPerformancePatch
                 Monitor.Log("[Client] Failed to send sync request: host ID not found", LogLevel.Warn);
                 return;
             }
+
+            var host = Game1.GetPlayer(hostId);
+            string hostName = host?.Name ?? "Host";
+            Monitor.Log($"[Client] Sending {msgType} to {hostName} ({hostId})", LogLevel.Debug);
 
             Helper.Multiplayer.SendMessage(
                 message: new object(),
@@ -193,16 +235,23 @@ namespace NPCMapLocationsPerformancePatch
 
         private long GetHostId()
         {
-            if (cachedHostId.HasValue)
-                return cachedHostId.Value;
+            if (CachedHostId.HasValue)
+                return CachedHostId.Value;
 
-            foreach (var peer in Helper.Multiplayer.GetConnectedPlayers())
+            try
             {
-                if (peer.IsHost)
+                foreach (var peer in Helper.Multiplayer.GetConnectedPlayers())
                 {
-                    cachedHostId = peer.PlayerID;
-                    return peer.PlayerID;
+                    if (peer.IsHost)
+                    {
+                        CachedHostId = peer.PlayerID;
+                        return peer.PlayerID;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Monitor.Log($"Error getting host ID: {ex.Message}", LogLevel.Warn);
             }
 
             return -1;

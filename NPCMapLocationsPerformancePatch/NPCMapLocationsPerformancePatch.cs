@@ -1,52 +1,61 @@
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 
 namespace NPCMapLocationsPerformancePatch
 {
-    /// <summary>Gates NPC Map Locations' per-tick NPC sync so it only runs while someone can actually see the map.</summary>
+    [HarmonyPatch]
     public static class NPCMapLocationsPatch
     {
-        private static readonly object SyncLock = new();
-        private static readonly HashSet<long> SyncClients = new();
+        private static readonly object SyncLock = new object();
+        private static readonly Dictionary<long, int> SyncRequests = new Dictionary<long, int>();
+        private static int totalRequests = 0; // Cached counter
 
-        // Read every tick by the Harmony prefix without taking the lock; volatile so
-        // state changes made under SyncLock are immediately visible to that hot path.
-        private static volatile bool HasClientRequests;
-
-        /// <summary>Harmony prefix for NPCMapLocations.ModEntry's UpdateTicked handler. Returns true to let the original sync run.</summary>
+        /// <summary>Harmony prefix for NPCMapLocations.ModEntry.UpdateTicked.</summary>
         public static bool UpdatePrefix()
         {
             if (Context.IsMainPlayer)
-                return HasClientRequests || ModEntry.IsMapOpen;
+            {
+                lock (SyncLock)
+                {
+                    return totalRequests > 0 || ModEntry.IsMapOpen;
+                }
+            }
             return ModEntry.IsMapOpen;
         }
 
-        /// <summary>Called on the host when a client requests NPC sync (client opened the map).</summary>
+        /// <summary>Called by host when a client requests NPC sync.</summary>
         public static void OnClientRequestSync(long clientId)
         {
             if (!Context.IsMainPlayer) return;
 
             lock (SyncLock)
             {
-                SyncClients.Add(clientId);
-                HasClientRequests = true;
-                ModEntry.ModMonitor?.Log($"[Patch] Host: client {clientId} requested NPC sync ({SyncClients.Count} active)", LogLevel.Debug);
+                SyncRequests.TryGetValue(clientId, out int count);
+                SyncRequests[clientId] = count + 1;
+                totalRequests++;
+                ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} requested NPC sync (total: {totalRequests})", LogLevel.Debug);
             }
         }
 
-        /// <summary>Called on the host when a client stops requesting NPC sync (client closed the map).</summary>
+        /// <summary>Called by host when a client stops NPC sync.</summary>
         public static void OnClientStopSync(long clientId)
         {
             if (!Context.IsMainPlayer) return;
 
             lock (SyncLock)
             {
-                if (SyncClients.Remove(clientId))
+                if (SyncRequests.TryGetValue(clientId, out int count))
                 {
-                    HasClientRequests = SyncClients.Count > 0;
-                    ModEntry.ModMonitor?.Log($"[Patch] Host: client {clientId} stopped NPC sync ({SyncClients.Count} active)", LogLevel.Debug);
+                    if (count <= 1)
+                        SyncRequests.Remove(clientId);
+                    else
+                        SyncRequests[clientId] = count - 1;
+
+                    totalRequests = Math.Max(0, totalRequests - 1);
+                    ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} stopped NPC sync (total: {totalRequests})", LogLevel.Debug);
                 }
                 else
                 {
@@ -55,28 +64,28 @@ namespace NPCMapLocationsPerformancePatch
             }
         }
 
-        /// <summary>Called on the host when a client leaves, so their request doesn't keep NPC sync running.</summary>
+        /// <summary>Called by host when a client disconnects to clean up their requests.</summary>
         public static void OnClientDisconnected(long clientId)
         {
             if (!Context.IsMainPlayer) return;
 
             lock (SyncLock)
             {
-                if (SyncClients.Remove(clientId))
+                if (SyncRequests.TryGetValue(clientId, out int count))
                 {
-                    HasClientRequests = SyncClients.Count > 0;
-                    ModEntry.ModMonitor?.Log($"[Patch] Host: client {clientId} disconnected, removed sync request ({SyncClients.Count} active)", LogLevel.Debug);
+                    SyncRequests.Remove(clientId);
+                    totalRequests = Math.Max(0, totalRequests - count);
+                    ModEntry.ModMonitor?.Log($"[Patch] Host: Client {clientId} disconnected, removed {count} sync request(s) (total: {totalRequests})", LogLevel.Debug);
                 }
             }
         }
 
-        /// <summary>Clears all sync state (host returned to title).</summary>
-        public static void Reset()
+        /// <summary>Gets total active sync requests (host only).</summary>
+        public static int GetRequestCount()
         {
             lock (SyncLock)
             {
-                SyncClients.Clear();
-                HasClientRequests = false;
+                return totalRequests;
             }
         }
     }
